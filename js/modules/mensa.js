@@ -2,7 +2,7 @@
 import { CONFIG } from '../config.js';
 import { state, defaultMensaFilters } from '../state.js';
 import { isSameDay, formatDateIso, formatPrice, categorizeNote, getMensaSkeleton } from '../helpers.js';
-import { updateSubpageHeader } from '../navigation.js';
+import { updateSubpageHeader, closeBottomSheet } from '../navigation.js';
 
 export function getMensaLiveStatus(targetDate = new Date()) {
     const now = new Date();
@@ -303,8 +303,7 @@ export function openMealDetailSheet(meal) {
 }
 
 export function closeMealDetailSheet() {
-    const sheet = document.getElementById('meal-detail-sheet');
-    if (sheet) sheet.classList.remove('open');
+    closeBottomSheet('meal-detail-sheet');
 }
 
 export const MENSA_FILTER_KEYS = [
@@ -345,8 +344,7 @@ export function openMensaFilterSheet() {
 }
 
 export function closeMensaFilterSheet() {
-    const sheet = document.getElementById('mensa-filter-sheet');
-    if (sheet) sheet.classList.remove('open');
+    closeBottomSheet('mensa-filter-sheet');
 }
 
 export function setupMensaFilterEvents() {
@@ -398,8 +396,7 @@ export function openMensaHoursSheet() {
 }
 
 export function closeMensaHoursSheet() {
-    const sheet = document.getElementById('mensa-hours-sheet');
-    if (sheet) sheet.classList.remove('open');
+    closeBottomSheet('mensa-hours-sheet');
 }
 
 export function updateMensaHeaderStatus() {

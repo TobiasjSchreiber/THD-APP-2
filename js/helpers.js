@@ -141,7 +141,13 @@ export function parseICal(text) {
         else if (cur) {
             if (line.startsWith('SUMMARY')) {
                 const idx = line.indexOf(':');
-                if (idx > -1) cur.summary = line.substring(idx + 1).replace(/\\,/g, ',');
+                if (idx > -1) {
+                    let sum = line.substring(idx + 1).replace(/\\,/g, ',');
+                    // Strip trailing study group tags like (MT-5), (MT-MP5), (AI-B-1), (IF-4 / WI-4)
+                    sum = sum.replace(/\s*\([A-Z0-9_\-\s\/\.]*\d+[A-Z0-9_\-\s\/\.]*\)\s*$/i, '');
+                    sum = sum.replace(/\s*\([A-Z]{1,8}(?:-[A-Z0-9]+)+\)\s*$/i, '');
+                    cur.summary = sum.trim();
+                }
             }
             if (line.startsWith('LOCATION')) {
                 const idx = line.indexOf(':');
@@ -170,6 +176,31 @@ export function parseICal(text) {
                         cur.end = d;
                     }
                 }
+            }
+            if (line.startsWith('DURATION')) {
+                const parts = line.split(':');
+                if (parts.length > 1) {
+                    const durStr = parts[1];
+                    const m = durStr.match(/P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?/);
+                    if (m) {
+                        const days = parseInt(m[1] || 0, 10);
+                        const hours = parseInt(m[2] || 0, 10);
+                        const mins = parseInt(m[3] || 0, 10);
+                        const secs = parseInt(m[4] || 0, 10);
+                        cur._durationMs = (((days * 24 + hours) * 60 + mins) * 60 + secs) * 1000;
+                    }
+                }
+            }
+        }
+    });
+
+    events.forEach(ev => {
+        if (!ev.end && ev.start) {
+            if (ev._durationMs) {
+                ev.end = new Date(ev.start.getTime() + ev._durationMs);
+            } else {
+                // Default lecture duration: 90 minutes
+                ev.end = new Date(ev.start.getTime() + 90 * 60 * 1000);
             }
         }
     });

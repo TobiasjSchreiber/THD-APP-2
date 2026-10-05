@@ -177,12 +177,14 @@
                 <div class="settings-section">
                     <h3>Informationen</h3>
                     <div class="settings-list">
-                        <div class="setting-item" id="btn-open-about-app" style="cursor: pointer;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--text-muted);"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                <span style="font-weight: 500;">Über die App</span>
+                        <div class="setting-item" id="btn-open-about-app" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 14px 18px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 22px; height: 22px; color: var(--text-muted); flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span style="font-weight: 500; font-size: 15px;">Über die App</span>
                             </div>
-                            <span style="color: var(--text-muted); font-size: 16px; font-weight: 600;">›</span>
+                            <button class="icon-btn widget-more" aria-label="Details" tabindex="-1" style="pointer-events: none;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                            </button>
                         </div>
                     </div>
                 </div>

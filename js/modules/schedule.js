@@ -2,7 +2,7 @@
 import { CONFIG } from '../config.js';
 import { state } from '../state.js';
 import { isSameDay, parseICal, getScheduleSkeleton } from '../helpers.js';
-import { updateSubpageHeader, openPage } from '../navigation.js';
+import { updateSubpageHeader, openPage, closeBottomSheet } from '../navigation.js';
 
 export function isLectureAllowed(summary) {
     if (!summary) return true;
@@ -75,8 +75,7 @@ export function openScheduleFilterSheet() {
 }
 
 export function closeScheduleFilterSheet() {
-    const sheet = document.getElementById('schedule-filter-sheet');
-    if (sheet) sheet.classList.remove('open');
+    closeBottomSheet('schedule-filter-sheet');
 }
 
 export function parseBuildingAndFloor(location, summary) {
@@ -213,8 +212,7 @@ export function openLectureDetailSheet(event) {
 }
 
 export function closeLectureDetailSheet() {
-    const sheet = document.getElementById('lecture-modal');
-    if (sheet) sheet.classList.remove('open');
+    closeBottomSheet('lecture-modal');
 }
 
 export function renderScheduleView() {
@@ -229,25 +227,12 @@ export function renderScheduleView() {
     allDayEvents.sort((a, b) => a.start - b.start);
     
     const dayEvents = allDayEvents.filter(ev => isLectureAllowed(ev.summary));
-    const hiddenLecturesCount = allDayEvents.length - dayEvents.length;
     
     if (dayEvents.length === 0) {
-        const emptyMsg = allDayEvents.length > 0 
-            ? `<div class="loading" style="padding: 20px 0;">Alle Vorlesungen für heute ausgeblendet (${hiddenLecturesCount} ausgeblendet)</div>`
-            : '<div class="loading" style="padding: 20px 0;">Keine Vorlesungen an diesem Tag</div>';
+        const emptyMsg = '<div class="loading" style="padding: 20px 0;">Keine Vorlesungen an diesem Tag</div>';
         if (content) content.innerHTML = emptyMsg;
         if (detail) {
-            detail.innerHTML = `
-                ${emptyMsg}
-                ${hiddenLecturesCount > 0 ? `
-                    <div class="hidden-items-banner">
-                        <span>${hiddenLecturesCount} Vorlesung(en) ausgeblendet</span>
-                        <button id="btn-banner-schedule-filter">Verwalten</button>
-                    </div>
-                ` : ''}
-            `;
-            const bBtn = document.getElementById('btn-banner-schedule-filter');
-            if (bBtn) bBtn.addEventListener('click', openScheduleFilterSheet);
+            detail.innerHTML = emptyMsg;
         }
         return;
     }
@@ -355,15 +340,6 @@ export function renderScheduleView() {
             `;
         });
         
-        if (hiddenLecturesCount > 0) {
-            dHtml += `
-                <div class="hidden-items-banner">
-                    <span>${hiddenLecturesCount} Vorlesung(en) ausgeblendet</span>
-                    <button id="btn-banner-schedule-filter">Verwalten</button>
-                </div>
-            `;
-        }
-        
         detail.innerHTML = dHtml;
         
         // Detail lecture card click to open campus map modal
@@ -375,9 +351,6 @@ export function renderScheduleView() {
                 }
             });
         });
-        
-        const bBtn = document.getElementById('btn-banner-schedule-filter');
-        if (bBtn) bBtn.addEventListener('click', openScheduleFilterSheet);
     }
 }
 

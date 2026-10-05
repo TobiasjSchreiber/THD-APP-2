@@ -1,6 +1,5 @@
-// Dashboard Grid Packing, Rendering, Proportional Resizing & Settings
 import { state, saveState } from './state.js';
-import { openPage } from './navigation.js';
+import { openPage, closeBottomSheet } from './navigation.js';
 
 let fetchDataCallback = null;
 export function setFetchDataCallback(cb) {
@@ -313,9 +312,9 @@ export function setupSettingsListeners() {
         btnOpenAbout.addEventListener('click', () => aboutSheet.classList.add('open'));
     }
     if (btnCloseAbout && aboutSheet) {
-        btnCloseAbout.addEventListener('click', () => aboutSheet.classList.remove('open'));
+        btnCloseAbout.addEventListener('click', () => closeBottomSheet('about-app-sheet'));
     }
     if (aboutBackdrop && aboutSheet) {
-        aboutBackdrop.addEventListener('click', () => aboutSheet.classList.remove('open'));
+        aboutBackdrop.addEventListener('click', () => closeBottomSheet('about-app-sheet'));
     }
 }

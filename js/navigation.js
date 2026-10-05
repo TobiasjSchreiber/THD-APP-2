@@ -4,13 +4,30 @@ import { isSameDay, formatDateIso, getRelativeDayString, getWeekDays } from './h
 import { renderScheduleView } from './modules/schedule.js';
 import { loadMensaForDate, updateMensaHeaderStatus } from './modules/mensa.js';
 
-export function openPage(id) {
+let isInternalHistoryChange = false;
+
+export function getCurrentActivePageId() {
+    const active = document.querySelector('.page.active');
+    return active ? active.id : 'page-dashboard';
+}
+
+export function openPage(id, pushHistory = true) {
     const pages = document.querySelectorAll('.page');
     pages.forEach(p => p.classList.remove('active'));
     const target = document.getElementById(id);
     if (target) target.classList.add('active');
     if (id === 'page-mensa') {
         updateMensaHeaderStatus();
+    }
+
+    if (pushHistory && id !== 'page-dashboard') {
+        if (history.state?.page !== id) {
+            history.pushState({ page: id }, '');
+        }
+    } else if (pushHistory && id === 'page-dashboard') {
+        if (history.state?.page && history.state.page !== 'page-dashboard') {
+            history.pushState({ page: 'page-dashboard' }, '');
+        }
     }
 }
 
@@ -90,9 +107,32 @@ export function openDateSheet(target) {
     if (sheet) sheet.classList.add('open');
 }
 
+export function closeBottomSheet(sheet) {
+    if (typeof sheet === 'string') {
+        sheet = document.getElementById(sheet);
+    }
+    if (!sheet || !sheet.classList.contains('open') || sheet.classList.contains('closing')) return;
+
+    sheet.classList.add('closing');
+
+    setTimeout(() => {
+        sheet.classList.remove('open');
+        sheet.classList.remove('closing');
+        const container = sheet.querySelector('.sheet-container');
+        if (container) {
+            container.style.transform = '';
+            container.style.transition = '';
+        }
+        const backdrop = sheet.querySelector('.sheet-backdrop');
+        if (backdrop) {
+            backdrop.style.opacity = '';
+            backdrop.style.transition = '';
+        }
+    }, 220);
+}
+
 export function closeDateSheet() {
-    const sheet = document.getElementById('date-picker-sheet');
-    if (sheet) sheet.classList.remove('open');
+    closeBottomSheet('date-picker-sheet');
 }
 
 export function updateSheetContent() {
@@ -145,9 +185,84 @@ export function updateSheetContent() {
 }
 
 export function setupNavigationListeners() {
+    // Initialize base history state on load
+    if (!history.state) {
+        history.replaceState({ page: 'page-dashboard' }, '');
+    }
+
     // Back buttons
     document.querySelectorAll('.btn-back').forEach(btn => {
-        btn.addEventListener('click', () => openPage('page-dashboard'));
+        btn.addEventListener('click', () => {
+            if (history.state?.page && history.state.page !== 'page-dashboard') {
+                history.back();
+            } else {
+                openPage('page-dashboard', false);
+            }
+        });
+    });
+
+    // Universal button close handlers for all bottom sheets
+    document.querySelectorAll('.bottom-sheet .btn-close-sheet').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const sheet = btn.closest('.bottom-sheet');
+            if (sheet) closeBottomSheet(sheet);
+        });
+    });
+
+    // Universal backdrop click handlers for all bottom sheets
+    document.querySelectorAll('.bottom-sheet .sheet-backdrop').forEach(backdrop => {
+        backdrop.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const sheet = backdrop.closest('.bottom-sheet');
+            if (sheet) closeBottomSheet(sheet);
+        });
+    });
+
+    // Observe all bottom sheets for open/close to synchronize with Android back button
+    const sheetObserver = new MutationObserver((mutations) => {
+        mutations.forEach(mutation => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const target = mutation.target;
+                const isOpen = target.classList.contains('open');
+                if (isOpen) {
+                    // Modal opened -> push modal state
+                    if (!isInternalHistoryChange) {
+                        history.pushState({ modal: target.id, page: getCurrentActivePageId() }, '');
+                    }
+                } else {
+                    // Modal closed via UI -> revert modal history state
+                    if (!isInternalHistoryChange && history.state?.modal === target.id) {
+                        isInternalHistoryChange = true;
+                        history.back();
+                        setTimeout(() => { isInternalHistoryChange = false; }, 100);
+                    }
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('.bottom-sheet').forEach(sheet => {
+        sheetObserver.observe(sheet, { attributes: true, attributeFilter: ['class'] });
+    });
+
+    // Universal popstate handler for Android system back button & browser back
+    window.addEventListener('popstate', (e) => {
+        if (isInternalHistoryChange) return;
+
+        // 1. Close any open bottom sheet first with slide-down animation
+        const openSheets = Array.from(document.querySelectorAll('.bottom-sheet.open'));
+        if (openSheets.length > 0) {
+            const topSheet = openSheets[openSheets.length - 1];
+            isInternalHistoryChange = true;
+            closeBottomSheet(topSheet);
+            setTimeout(() => { isInternalHistoryChange = false; }, 230);
+            return;
+        }
+
+        // 2. If returning to page-dashboard or another page
+        const targetPage = e.state?.page || 'page-dashboard';
+        openPage(targetPage, false);
     });
 
     // Settings button
