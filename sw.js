@@ -1,24 +1,24 @@
-const CACHE_NAME = 'thd-app2-v68';
+const CACHE_NAME = 'thd-app2-v69';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/manifest.json',
-  '/icon.svg',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/app.js',
-  '/js/app.js',
-  '/js/config.js',
-  '/js/state.js',
-  '/js/helpers.js',
-  '/js/navigation.js',
-  '/js/dashboard.js',
-  '/js/modules/parking.js',
-  '/js/modules/events.js',
-  '/js/modules/mensa.js',
-  '/js/modules/schedule.js',
-  '/js/modules/webcam.js'
+  './',
+  './index.html',
+  './style.css',
+  './manifest.json',
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png',
+  './app.js',
+  './js/app.js',
+  './js/config.js',
+  './js/state.js',
+  './js/helpers.js',
+  './js/navigation.js',
+  './js/dashboard.js',
+  './js/modules/parking.js',
+  './js/modules/events.js',
+  './js/modules/mensa.js',
+  './js/modules/schedule.js',
+  './js/modules/webcam.js'
 ];
 
 self.addEventListener('install', event => {
