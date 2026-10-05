@@ -1,10 +1,11 @@
-const CACHE_NAME = 'thd-app2-v72';
+const CACHE_NAME = 'thd-app2-v73';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './style.css',
   './manifest.json',
   './icon.svg',
+  './qr-github.svg',
   './icon-192.png',
   './icon-512.png',
   './app.js',

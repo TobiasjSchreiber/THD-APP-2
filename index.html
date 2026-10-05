@@ -174,12 +174,64 @@
                     <input type="text" id="input-studygroup" placeholder="z.B. MT-MP5">
                     <button id="btn-save-group" class="primary-btn">Speichern</button>
                 </div>
+                <div class="settings-section">
+                    <h3>Informationen</h3>
+                    <div class="settings-list">
+                        <div class="setting-item" id="btn-open-about-app" style="cursor: pointer;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--text-muted);"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span style="font-weight: 500;">Über die App</span>
+                            </div>
+                            <span style="color: var(--text-muted); font-size: 16px; font-weight: 600;">›</span>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
     
     <!-- Hidden Native Date Input for full calendar support -->
     <input type="date" id="native-date-input" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; z-index: -1;">
+
+    <!-- About App Bottom Sheet -->
+    <div id="about-app-sheet" class="bottom-sheet">
+        <div class="sheet-backdrop" id="about-app-backdrop"></div>
+        <div class="sheet-container filter-sheet-container" style="text-align: center; align-items: center;">
+            <div class="sheet-drag-handle"></div>
+            <div class="sheet-header" style="width: 100%;">
+                <h3>Über die App</h3>
+                <button class="icon-btn btn-close-sheet" id="btn-close-about-app" aria-label="Schließen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 10px 0 24px; width: 100%;">
+                <img src="icon.svg" alt="THD App 2 Logo" style="width: 76px; height: 76px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+                
+                <div>
+                    <h2 style="font-size: 22px; font-weight: 800; margin: 0; color: #fff;">THD App 2</h2>
+                    <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Version 2.0 • Progressive Web App</span>
+                </div>
+
+                <p style="font-size: 13px; color: #ccc; line-height: 1.45; max-width: 320px; margin: 0;">
+                    Dein smarter Begleiter für den Campus der TH Deggendorf mit Stundenplan, Mensa-Speiseplan, Live-Parkplatzbelegung und Campus-Webcam.
+                </p>
+
+                <div style="background: #ffffff; padding: 12px; border-radius: 18px; margin-top: 6px; display: inline-flex; justify-content: center; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+                    <img src="qr-github.svg" alt="QR Code zur App" style="width: 150px; height: 150px; display: block;">
+                </div>
+                
+                <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">QR-Code scannen, um die App zu teilen</span>
+
+                <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 6px;">
+                    <a href="https://github.com/TobiasjSchreiber/THD-APP-2" target="_blank" rel="noopener" class="primary-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; padding: 12px; border-radius: var(--radius-md);">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                        <span>GitHub Repository</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Date Picker Bottom Sheet -->
     <div id="date-picker-sheet" class="bottom-sheet">

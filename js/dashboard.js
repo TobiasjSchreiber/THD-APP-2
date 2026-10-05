@@ -303,4 +303,19 @@ export function setupSettingsListeners() {
             }
         });
     }
+
+    const btnOpenAbout = document.getElementById('btn-open-about-app');
+    const aboutSheet = document.getElementById('about-app-sheet');
+    const btnCloseAbout = document.getElementById('btn-close-about-app');
+    const aboutBackdrop = document.getElementById('about-app-backdrop');
+
+    if (btnOpenAbout && aboutSheet) {
+        btnOpenAbout.addEventListener('click', () => aboutSheet.classList.add('open'));
+    }
+    if (btnCloseAbout && aboutSheet) {
+        btnCloseAbout.addEventListener('click', () => aboutSheet.classList.remove('open'));
+    }
+    if (aboutBackdrop && aboutSheet) {
+        aboutBackdrop.addEventListener('click', () => aboutSheet.classList.remove('open'));
+    }
 }
