@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thd-app2-v70';
+const CACHE_NAME = 'thd-app2-v72';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -44,15 +44,16 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Always fetch dynamic APIs, proxy, and webcam directly from network
+  // Completely bypass Service Worker for cross-origin URLs, APIs, and webcam so browser handles them natively
   if (
+    !event.request.url.startsWith(self.location.origin) ||
     event.request.url.includes('/api/') || 
     event.request.url.includes('proxy') || 
     event.request.url.includes('webcam')
   ) {
-    event.respondWith(fetch(event.request));
     return;
   }
+  
   event.respondWith(
     caches.match(event.request)
       .then(response => response || fetch(event.request))

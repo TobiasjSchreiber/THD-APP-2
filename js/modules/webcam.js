@@ -96,7 +96,16 @@ export function refreshWebcam(isManual = false) {
         activeLoaderImage = null;
     };
 
+    let retryAttempted = false;
+
     activeLoaderImage.onerror = (err) => {
+        if (!retryAttempted) {
+            retryAttempted = true;
+            console.warn('[Webcam] Erster Versuch fehlgeschlagen, lade direkt...');
+            activeLoaderImage.src = CONFIG.webcamUrl;
+            return;
+        }
+
         if (loaderTimeoutId) {
             clearTimeout(loaderTimeoutId);
             loaderTimeoutId = null;

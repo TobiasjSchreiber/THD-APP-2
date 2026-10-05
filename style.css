@@ -89,7 +89,7 @@ html, body {
 }
 
 #page-dashboard header {
-    padding: 12px 14px 6px;
+    padding: 20px 16px 14px;
     background: var(--bg-color);
     flex-shrink: 0;
 }
