@@ -10,12 +10,7 @@ export async function loadParking() {
     
     try {
         const url = CONFIG.parkingApiUrl;
-        let res;
-        try {
-            res = await fetch(url);
-        } catch (e) {
-            res = await fetch(CONFIG.proxyUrlBase + encodeURIComponent(url));
-        }
+        const res = await fetch(CONFIG.proxyUrlBase + encodeURIComponent(url));
         
         const data = await res.json();
         const donau = data.result.find(p => p.id === 11 || p.name.includes('Donau'));
