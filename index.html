@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THD App 2</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+</head>
+<body>
+    <div id="app">
+        <!-- Dashboard Page -->
+        <div id="page-dashboard" class="page active">
+            <header>
+                <div class="header-content">
+                    <h1>THD Dashboard</h1>
+                    <button id="btn-settings" class="icon-btn" aria-label="Einstellungen">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    </button>
+                </div>
+            </header>
+            <main>
+                <div id="dashboard-grid" class="dashboard-grid">
+                    <!-- Widgets injected here -->
+                </div>
+            </main>
+        </div>
+
+        <!-- Details Pages Structure -->
+        <!-- Schedule Page -->
+        <div id="page-schedule" class="page">
+            <header class="subpage-header">
+                <div class="header-top-bar">
+                    <button class="icon-btn btn-back" aria-label="Zurück">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                    <div class="header-top-right">
+                        <span class="subpage-badge">Stundenplan</span>
+                        <button class="icon-btn btn-header-action" id="btn-schedule-filter" aria-label="Vorlesungen anpassen">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <button class="header-day-btn" id="schedule-day-btn" aria-label="Tag wechseln">
+                    <span class="header-date-sub" id="schedule-date-sub">Lade Datum...</span>
+                    <div class="header-date-row">
+                        <h1 class="header-date-main" id="schedule-day-name">Heute</h1>
+                        <span class="day-chip" id="schedule-day-chip">Heute</span>
+                        <svg class="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                    </div>
+                </button>
+                <div class="subpage-weekday-strip" id="schedule-weekday-strip"></div>
+            </header>
+            <main class="page-content">
+                <div id="content-schedule"></div>
+            </main>
+        </div>
+
+        <!-- Parking Page -->
+        <div id="page-parking" class="page">
+            <header>
+                <div class="header-content">
+                    <button class="icon-btn btn-back" aria-label="Zurück">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                    <h2>Parkhaus</h2>
+                </div>
+            </header>
+            <main class="page-content" id="content-parking"></main>
+        </div>
+
+        <!-- Mensa Page -->
+        <div id="page-mensa" class="page">
+            <header class="subpage-header">
+                <div class="header-top-bar">
+                    <button class="icon-btn btn-back" aria-label="Zurück">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                    <div class="header-top-right">
+                        <span class="subpage-badge">Speiseplan</span>
+                        <button class="icon-btn btn-header-action" id="btn-mensa-hours" aria-label="Öffnungszeiten" title="Öffnungszeiten">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <span class="btn-header-status-dot" id="mensa-header-status-dot"></span>
+                        </button>
+                        <button class="icon-btn btn-header-action" id="btn-mensa-filter" aria-label="Speiseplan-Filter" title="Filter & Allergene">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                            <span class="btn-header-status-dot filter-active-dot" id="mensa-filter-status-dot" style="display: none;"></span>
+                        </button>
+                    </div>
+                </div>
+                <button class="header-day-btn" id="mensa-day-btn" aria-label="Tag wechseln">
+                    <span class="header-date-sub" id="mensa-date-sub">Lade Datum...</span>
+                    <div class="header-date-row">
+                        <h1 class="header-date-main" id="mensa-day-name">Heute</h1>
+                        <span class="day-chip" id="mensa-day-chip">Heute</span>
+                        <svg class="icon-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                    </div>
+                </button>
+                <div class="subpage-weekday-strip" id="mensa-weekday-strip"></div>
+            </header>
+            <main class="page-content">
+                <div id="content-mensa"></div>
+            </main>
+        </div>
+
+        <!-- Events Page -->
+        <div id="page-events" class="page">
+            <header>
+                <div class="header-content">
+                    <button class="icon-btn btn-back" aria-label="Zurück">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                    <h2>Eventkalender</h2>
+                </div>
+            </header>
+            <main class="page-content" id="content-events"></main>
+        </div>
+
+        <!-- Campus Webcam Page -->
+        <div id="page-webcam" class="page">
+            <header class="subpage-header">
+                <div class="header-top-bar">
+                    <button class="icon-btn btn-back" aria-label="Zurück">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                    <div class="header-top-right">
+                        <span class="subpage-badge">Webcam</span>
+                        <button class="icon-btn btn-header-action" id="btn-refresh-webcam" aria-label="Webcam aktualisieren" title="Aktualisieren">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 6px 0 14px 0;">
+                    <h1 class="header-date-main" style="font-size: 24px; margin-bottom: 2px;">Campus Deggendorf</h1>
+                    <span class="header-date-sub" id="webcam-status-text">Wird geladen...</span>
+                </div>
+            </header>
+            <main class="page-content" id="content-webcam" style="padding: 12px 16px 32px;">
+                <div class="webcam-detail-wrapper">
+                    <div class="webcam-image-frame">
+                        <div id="webcam-detail-shimmer" class="shimmer-box"></div>
+                        <img id="webcam-img-detail" class="webcam-full-image" alt="THD Campus Webcam" style="display: none;">
+                        <div id="webcam-detail-error" class="webcam-error-box" style="display: none;">
+                            <span>Bild konnte nicht geladen werden</span>
+                            <button class="primary-btn" id="btn-webcam-retry" style="margin-top: 10px; padding: 6px 14px; font-size: 13px;">Erneut versuchen</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="page-settings" class="page">
+            <header>
+                <div class="header-content">
+                    <button class="icon-btn btn-back" aria-label="Zurück">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                    <h2>Einstellungen</h2>
+                </div>
+            </header>
+            <main class="page-content">
+                <div class="settings-section">
+                    <h3>Sichtbare Widgets</h3>
+                    <div id="settings-widgets" class="settings-list">
+                        <!-- Switches injected here -->
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Studiengruppe</h3>
+                    <input type="text" id="input-studygroup" placeholder="z.B. MT-MP5">
+                    <button id="btn-save-group" class="primary-btn">Speichern</button>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Hidden Native Date Input for full calendar support -->
+    <input type="date" id="native-date-input" style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; z-index: -1;">
+
+    <!-- Date Picker Bottom Sheet -->
+    <div id="date-picker-sheet" class="bottom-sheet">
+        <div class="sheet-backdrop" id="sheet-backdrop"></div>
+        <div class="sheet-container">
+            <div class="sheet-drag-handle"></div>
+            <div class="sheet-header">
+                <h3>Tag auswählen</h3>
+                <button class="icon-btn btn-close-sheet" id="btn-close-sheet" aria-label="Schließen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <div class="sheet-quick-pills">
+                <button class="sheet-quick-btn" data-offset="-1">Gestern</button>
+                <button class="sheet-quick-btn active" data-offset="0">Heute</button>
+                <button class="sheet-quick-btn" data-offset="1">Morgen</button>
+                <button class="sheet-quick-btn" data-offset="2">Übermorgen</button>
+            </div>
+
+            <div class="sheet-week-section">
+                <div class="sheet-week-header">
+                    <button class="icon-btn mini-btn" id="btn-sheet-prev-week" aria-label="Vorherige Woche">‹</button>
+                    <span id="sheet-week-label" class="sheet-week-label">Aktuelle Woche</span>
+                    <button class="icon-btn mini-btn" id="btn-sheet-next-week" aria-label="Nächste Woche">›</button>
+                </div>
+                <div class="weekday-pills" id="sheet-weekday-pills"></div>
+            </div>
+
+            <button id="btn-open-native-calendar" class="sheet-calendar-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span>Anderes Kalenderdatum wählen...</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Meal Details Bottom Sheet -->
+    <div id="meal-detail-sheet" class="bottom-sheet">
+        <div class="sheet-backdrop" id="meal-sheet-backdrop"></div>
+        <div class="sheet-container meal-detail-container">
+            <div class="sheet-drag-handle"></div>
+            <div class="sheet-header">
+                <span class="subpage-badge" id="meal-sheet-category">Hauptgericht</span>
+                <button class="icon-btn btn-close-sheet" id="btn-close-meal-sheet" aria-label="Schließen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <div id="meal-sheet-image-box" class="meal-sheet-image-box" style="display: none;">
+                <div id="meal-sheet-image-shimmer" class="shimmer-box" style="display: none;"></div>
+                <img id="meal-sheet-image" src="" alt="Gerichtsfoto" class="meal-sheet-image">
+            </div>
+
+            <h2 id="meal-sheet-title" class="meal-sheet-title">Gerichtsname</h2>
+            <div id="meal-sheet-diet-badges" class="meal-sheet-diet-badges"></div>
+            
+            <div class="meal-price-grid">
+                <div class="meal-price-box primary">
+                    <span class="meal-price-role">Studierende</span>
+                    <span class="meal-price-val" id="meal-sheet-price-students">0,00 €</span>
+                </div>
+                <div class="meal-price-box">
+                    <span class="meal-price-role">Bedienstete</span>
+                    <span class="meal-price-val" id="meal-sheet-price-employees">0,00 €</span>
+                </div>
+                <div class="meal-price-box">
+                    <span class="meal-price-role">Gäste</span>
+                    <span class="meal-price-val" id="meal-sheet-price-others">0,00 €</span>
+                </div>
+            </div>
+
+            <div class="meal-detail-section">
+                <h4 class="meal-section-heading">Inhaltsstoffe & Allergene</h4>
+                <div id="meal-sheet-notes" class="meal-notes-chips"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lecture Detail & Campus Map Bottom Sheet -->
+    <div id="lecture-modal" class="bottom-sheet">
+        <div class="sheet-backdrop" id="lecture-modal-backdrop"></div>
+        <div class="sheet-container filter-sheet-container">
+            <div class="sheet-drag-handle"></div>
+            <div class="sheet-header">
+                <div>
+                    <h3 id="lecture-sheet-title" class="lecture-modal-title">Vorlesung</h3>
+                    <p id="lecture-sheet-time" class="lecture-modal-subtitle">Zeit</p>
+                </div>
+                <button class="icon-btn btn-close-sheet" id="btn-close-lecture-modal" aria-label="Schließen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="lecture-info-grid">
+                <div class="lecture-info-card">
+                    <span class="info-label">Raum</span>
+                    <strong id="lecture-sheet-room" class="info-val">E105</strong>
+                </div>
+                <div class="lecture-info-card">
+                    <span class="info-label">Gebäude</span>
+                    <strong id="lecture-sheet-building" class="info-val">Gebäude E</strong>
+                </div>
+                <div class="lecture-info-card" id="lecture-sheet-floor-box">
+                    <span class="info-label">Ebene</span>
+                    <strong id="lecture-sheet-floor" class="info-val">1. Stock</strong>
+                </div>
+            </div>
+
+            <div class="campus-map-section">
+                <div class="campus-map-header">
+                    <span class="campus-map-title">Campusplan Deggendorf</span>
+                    <span class="campus-map-target" id="campus-map-target-badge">Gebäude E</span>
+                </div>
+                <div class="minimap">
+                    <svg viewBox="0 0 340 200" style="width: 100%; height: 100%;">
+                        <path class="map-road" d="M 210 10 L 210 140 Q 210 155 225 155 L 330 155" />
+
+                        <rect id="bldg-A" class="building" x="10" y="20" width="40" height="20" rx="3" /><text class="building-label" x="30" y="31">A</text>
+                        <rect id="bldg-B" class="building" x="55" y="20" width="40" height="20" rx="3" /><text class="building-label" x="75" y="31">B</text>
+                        <rect id="bldg-C" class="building" x="100" y="20" width="80" height="20" rx="3" /><text class="building-label" x="140" y="31">C</text>
+
+                        <rect id="bldg-F" class="building" x="10" y="50" width="50" height="35" rx="3" /><text class="building-label" x="35" y="68">F</text>
+                        <rect id="bldg-G" class="building" x="110" y="50" width="50" height="30" rx="3" /><text class="building-label" x="135" y="66">G</text>
+
+                        <rect id="bldg-D" class="building" x="10" y="95" width="90" height="20" rx="3" /><text class="building-label" x="55" y="106">D</text>
+                        <rect id="bldg-E" class="building" x="105" y="95" width="75" height="20" rx="3" /><text class="building-label" x="142" y="106">E</text>
+
+                        <rect id="bldg-H" class="building" x="50" y="125" width="30" height="30" rx="3" /><text class="building-label" x="65" y="141">H</text>
+                        <rect id="bldg-I" class="building" x="105" y="125" width="55" height="30" rx="3" /><text class="building-label" x="132" y="141">I</text>
+
+                        <rect id="bldg-J" class="building" x="10" y="165" width="45" height="25" rx="3" /><text class="building-label" x="32" y="178">J</text>
+                        <rect id="bldg-K" class="building" x="65" y="165" width="30" height="25" rx="3" /><text class="building-label" x="80" y="178">K</text>
+                        <rect id="bldg-L" class="building" x="125" y="165" width="35" height="25" rx="3" /><text class="building-label" x="142" y="178">L</text>
+
+                        <rect id="bldg-U-top" class="building" x="235" y="20" width="80" height="20" rx="3" />
+                        <rect id="bldg-U-right" class="building" x="295" y="40" width="20" height="70" rx="3" />
+                        <rect id="bldg-U-bottom" class="building" x="235" y="110" width="80" height="20" rx="3" />
+                        <rect id="bldg-ITC" class="building" x="250" y="55" width="30" height="30" rx="3" /><text class="building-label" x="265" y="71">ITC</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="sheet-action-row">
+                <button id="btn-lecture-ilearn" class="sheet-action-btn primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    <span>Zu iLearn</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensa Hours Bottom Sheet -->
+    <div id="mensa-hours-sheet" class="bottom-sheet">
+        <div class="sheet-backdrop" id="mensa-hours-backdrop"></div>
+        <div class="sheet-container filter-sheet-container">
+            <div class="sheet-drag-handle"></div>
+            <div class="sheet-header">
+                <h3>Öffnungszeiten Mensa</h3>
+                <button class="icon-btn btn-close-sheet" id="btn-close-mensa-hours" aria-label="Schließen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="hours-live-card" id="mensa-live-status-card">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="hours-section">
+                <div class="hours-card">
+                    <div class="hours-card-header">
+                        <span class="hours-card-title">Vorlesungs- & Prüfungszeit</span>
+                        <span class="hours-chip active">Standard</span>
+                    </div>
+                    <div class="hours-card-row">
+                        <span>Montag – Freitag</span>
+                        <strong>11:00 – 14:15 Uhr</strong>
+                    </div>
+                </div>
+
+                <div class="hours-card">
+                    <div class="hours-card-header">
+                        <span class="hours-card-title">Vorlesungsfreie Zeit & Brückentage</span>
+                    </div>
+                    <div class="hours-card-row">
+                        <span>Montag – Freitag</span>
+                        <strong>11:00 – 14:00 Uhr</strong>
+                    </div>
+                </div>
+
+                <div class="hours-card warning">
+                    <div class="hours-card-header">
+                        <span class="hours-card-title">Verkürzte Öffnungszeiten</span>
+                    </div>
+                    <div class="hours-card-row">
+                        <span>Mittwoch, 23. Dezember 2026</span>
+                        <strong>11:00 – 13:00 Uhr</strong>
+                    </div>
+                </div>
+
+                <div class="hours-card danger">
+                    <div class="hours-card-header">
+                        <span class="hours-card-title">Schließzeiten</span>
+                    </div>
+                    <div class="hours-card-row">
+                        <span>24. Dezember 2026 – 6. Januar 2027</span>
+                        <strong>Geschlossen</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensa Filter Bottom Sheet -->
+    <div id="mensa-filter-sheet" class="bottom-sheet">
+        <div class="sheet-backdrop" id="mensa-filter-backdrop"></div>
+        <div class="sheet-container">
+            <div class="sheet-drag-handle"></div>
+            <div class="sheet-header">
+                <div>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 700;">Speiseplan Filter</h3>
+                    <p style="margin: 2px 0 0; font-size: 12px; color: var(--text-muted);">Ernährung, Zutaten & Allergene anpassen</p>
+                </div>
+                <button class="icon-btn btn-close-sheet" id="btn-close-mensa-filter" aria-label="Schließen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <div class="sheet-scroll-body">
+                <div class="filter-group">
+                    <span class="filter-group-title">Ernährungsform</span>
+                    <div class="setting-item">
+                        <span>Nur Vegetarisch</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-only-veggie">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Nur Vegan</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-only-vegan">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-group-title">Zutaten ausblenden</span>
+                    <div class="setting-item">
+                        <span>Alkohol ausblenden</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-alcohol">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Schweinefleisch ausblenden</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-pork">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Rindfleisch ausblenden</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-beef">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Geflügel ausblenden</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-poultry">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-group-title">Allergene & Unverträglichkeiten</span>
+                    <div class="setting-item">
+                        <span>Gluten / Weizen ausblenden</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-gluten">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Laktose / Milch ausblenden</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-lactose">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Eier ausblenden</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-eggs">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Nüsse & Schalenfrüchte</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-nuts">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Soja ausblenden</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-soy">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Fisch & Meeresfrüchte</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-fish">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Sellerie ausblenden</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-celery">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Senf ausblenden</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-mustard">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Sulfite / Schwefeldioxid</span>
+                        <label class="switch">
+                            <input type="checkbox" id="filter-no-sulfite">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="filter-reset-btn" id="btn-reset-mensa-filter">Alle Filter zurücksetzen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Filter Bottom Sheet -->
+    <div id="schedule-filter-sheet" class="bottom-sheet">
+        <div class="sheet-backdrop" id="schedule-filter-backdrop"></div>
+        <div class="sheet-container filter-sheet-container">
+            <div class="sheet-drag-handle"></div>
+            <div class="sheet-header">
+                <h3>Vorlesungen verwalten</h3>
+                <button class="icon-btn btn-close-sheet" id="btn-close-schedule-filter" aria-label="Schließen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <p class="filter-sheet-desc">Schalte Fächer ab, um sie aus deinem Stundenplan und Dashboard auszublenden:</p>
+            
+            <div id="schedule-filter-list" class="filter-toggle-list">
+                <!-- Dynamically populated with unique lecture subjects -->
+            </div>
+            
+            <button class="filter-reset-btn" id="btn-reset-schedule-filter">Alle Vorlesungen einblenden</button>
+        </div>
+    </div>
+
+    <!-- Widget Templates -->
+    <template id="tpl-widget">
+        <div class="widget">
+            <div class="widget-header">
+                <span class="widget-title"></span>
+                <button class="icon-btn widget-more" aria-label="Details">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+            </div>
+            <div class="widget-content"></div>
+            <div class="resize-handle"></div>
+        </div>
+    </template>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
