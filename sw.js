@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thd-app2-v93';
+const CACHE_NAME = 'thd-app2-v99';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -19,7 +19,8 @@ const ASSETS_TO_CACHE = [
   './js/modules/events.js',
   './js/modules/mensa.js',
   './js/modules/schedule.js',
-  './js/modules/webcam.js'
+  './js/modules/webcam.js',
+  './js/modules/weather.js'
 ];
 
 self.addEventListener('install', event => {

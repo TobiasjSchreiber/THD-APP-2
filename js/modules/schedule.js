@@ -215,9 +215,84 @@ export function closeLectureDetailSheet() {
     closeBottomSheet('lecture-modal');
 }
 
-export function renderScheduleView() {
+export function renderScheduleWidget() {
     const content = document.getElementById('widget-content-schedule');
+    if (!content) return;
+    
+    // Widget ALWAYS shows today's events regardless of subpage date selection
+    const today = new Date();
+    const allTodayEvents = state.allScheduleEvents.filter(ev => isSameDay(ev.start, today));
+    allTodayEvents.sort((a, b) => a.start - b.start);
+    
+    const dayEvents = allTodayEvents.filter(ev => isLectureAllowed(ev.summary));
+    
+    if (dayEvents.length === 0) {
+        content.innerHTML = '<div class="loading" style="padding: 20px 0;">Keine Vorlesungen heute</div>';
+        return;
+    }
+    
+    const now = new Date();
+    let currentTargetIdx = dayEvents.findIndex(e => now >= e.start && now < e.end);
+    let allPast = false;
+    
+    if (currentTargetIdx === -1) {
+        // Between classes or before class starts: point to next upcoming lecture
+        currentTargetIdx = dayEvents.findIndex(e => e.start > now);
+    }
+    if (currentTargetIdx === -1 && dayEvents.length > 0) {
+        // All events for today are finished
+        allPast = true;
+    }
+    
+    let wHtml = '';
+    if (allPast) {
+        wHtml += '<div class="schedule-status-banner">Alle Vorlesungen für heute beendet</div>';
+    }
+    
+    const renderWidgetLecture = (e, idx) => {
+        const startT = e.start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        
+        let itemClass = 'list-item schedule-widget-item';
+        if (allPast || (currentTargetIdx !== -1 && idx < currentTargetIdx)) {
+            itemClass += ' is-past';
+        } else if (idx === currentTargetIdx) {
+            itemClass += ' is-current';
+        }
+        
+        return `
+            <div class="${itemClass}" data-schedule-index="${idx}">
+                <span class="list-title">${e.summary}</span>
+                <span class="schedule-widget-time">${startT}</span>
+            </div>
+        `;
+    };
+    
+    dayEvents.forEach((e, idx) => {
+        wHtml += renderWidgetLecture(e, idx);
+    });
+    
+    content.innerHTML = wHtml;
+    
+    // Auto-scroll within widget container to current lecture
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            const target = content.querySelector('.list-item.is-current');
+            if (target && content) {
+                const cRect = content.getBoundingClientRect();
+                const tRect = target.getBoundingClientRect();
+                const offset = tRect.top - cRect.top;
+                content.scrollTo({
+                    top: content.scrollTop + offset - 4,
+                    behavior: 'smooth'
+                });
+            }
+        }, 60);
+    });
+}
+
+export function renderScheduleDetail() {
     const detail = document.getElementById('content-schedule');
+    if (!detail) return;
     
     // Subpage Header & Weekday Strip
     updateSubpageHeader('schedule');
@@ -229,129 +304,46 @@ export function renderScheduleView() {
     const dayEvents = allDayEvents.filter(ev => isLectureAllowed(ev.summary));
     
     if (dayEvents.length === 0) {
-        const emptyMsg = '<div class="loading" style="padding: 20px 0;">Keine Vorlesungen an diesem Tag</div>';
-        if (content) content.innerHTML = emptyMsg;
-        if (detail) {
-            detail.innerHTML = emptyMsg;
-        }
+        detail.innerHTML = '<div class="loading" style="padding: 20px 0;">Keine Vorlesungen an diesem Tag</div>';
         return;
     }
     
-    // Widget content: chronological events, past greyed out above, current highlighted lighter & auto-scrolled
-    if (content) {
-        const now = new Date();
-        const isToday = isSameDay(state.currentScheduleDate, now);
+    const now = new Date();
+    const isToday = isSameDay(state.currentScheduleDate, now);
+    let dHtml = '';
+    dayEvents.forEach((e, idx) => {
+        const startT = e.start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        const endT = e.end ? e.end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
+        const timeStr = endT ? `${startT} - ${endT}` : startT;
+        const isCurrent = isToday && (now >= e.start && now < e.end);
         
-        let currentTargetIdx = -1;
-        let allPast = false;
-        
-        if (isToday) {
-            currentTargetIdx = dayEvents.findIndex(e => now >= e.start && now < e.end);
-            if (currentTargetIdx === -1) {
-                // Between classes or before class starts: point to next upcoming lecture
-                currentTargetIdx = dayEvents.findIndex(e => e.start > now);
-            }
-            if (currentTargetIdx === -1 && dayEvents.length > 0) {
-                // All events for today are finished
-                allPast = true;
-            }
-        }
-        
-        let wHtml = '';
-        if (allPast) {
-            wHtml += '<div class="schedule-status-banner">Alle Vorlesungen für heute beendet</div>';
-        }
-        
-        const renderWidgetLecture = (e, idx) => {
-            const startT = e.start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-            const endT = e.end ? e.end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
-            const timeStr = endT ? `${startT} - ${endT}` : startT;
-            
-            let itemClass = 'list-item schedule-item-interactive';
-            if (isToday) {
-                if (allPast || (currentTargetIdx !== -1 && idx < currentTargetIdx)) {
-                    itemClass += ' is-past';
-                } else if (idx === currentTargetIdx) {
-                    itemClass += ' is-current';
-                }
-            }
-            
-            return `
-                <div class="${itemClass}" data-schedule-index="${idx}">
-                    <span class="list-title">${e.summary.substring(0, 32)}${e.summary.length > 32 ? '...' : ''}</span>
-                    <span class="list-desc">${timeStr} ${e.location ? '• Raum ' + e.location : ''}</span>
+        dHtml += `
+            <div class="card-item ${isCurrent ? 'is-current' : ''} schedule-card-interactive" data-schedule-index="${idx}">
+                <div class="card-item-header">
+                    <span class="time-tag">${isCurrent ? '<span class="now-pill">JETZT</span>' : ''}${timeStr}</span>
+                    ${e.location ? `<span class="room-tag">Raum ${e.location}</span>` : ''}
                 </div>
-            `;
-        };
-        
-        dayEvents.forEach((e, idx) => {
-            wHtml += renderWidgetLecture(e, idx);
-        });
-        
-        content.innerHTML = wHtml;
-        
-        // Widget lecture item click to open campus map modal
-        content.querySelectorAll('.schedule-item-interactive').forEach(item => {
-            item.addEventListener('click', (ev) => {
-                const idx = parseInt(item.dataset.scheduleIndex, 10);
-                if (!isNaN(idx) && dayEvents && dayEvents[idx]) {
-                    ev.stopPropagation();
-                    openLectureDetailSheet(dayEvents[idx]);
-                }
-            });
-        });
-        
-        // Auto-scroll within widget container to current lecture
-        requestAnimationFrame(() => {
-            setTimeout(() => {
-                const target = content.querySelector('.list-item.is-current');
-                if (target && content) {
-                    const cRect = content.getBoundingClientRect();
-                    const tRect = target.getBoundingClientRect();
-                    const offset = tRect.top - cRect.top;
-                    content.scrollTo({
-                        top: content.scrollTop + offset - 4,
-                        behavior: 'smooth'
-                    });
-                }
-            }, 60);
-        });
-    }
+                <span class="list-title" style="font-size: 17px; margin-top: 2px;">${e.summary}</span>
+            </div>
+        `;
+    });
     
-    // Detail subpage content: full cards
-    if (detail) {
-        const now = new Date();
-        const isToday = isSameDay(state.currentScheduleDate, now);
-        let dHtml = '';
-        dayEvents.forEach((e, idx) => {
-            const startT = e.start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-            const endT = e.end ? e.end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : '';
-            const timeStr = endT ? `${startT} - ${endT}` : startT;
-            const isCurrent = isToday && (now >= e.start && now < e.end);
-            
-            dHtml += `
-                <div class="card-item ${isCurrent ? 'is-current' : ''} schedule-card-interactive" data-schedule-index="${idx}">
-                    <div class="card-item-header">
-                        <span class="time-tag">${isCurrent ? '<span class="now-pill">JETZT</span>' : ''}${timeStr}</span>
-                        ${e.location ? `<span class="room-tag">Raum ${e.location}</span>` : ''}
-                    </div>
-                    <span class="list-title" style="font-size: 17px; margin-top: 2px;">${e.summary}</span>
-                </div>
-            `;
+    detail.innerHTML = dHtml;
+    
+    // Detail lecture card click to open campus map modal
+    detail.querySelectorAll('.schedule-card-interactive').forEach(item => {
+        item.addEventListener('click', () => {
+            const idx = parseInt(item.dataset.scheduleIndex, 10);
+            if (!isNaN(idx) && dayEvents && dayEvents[idx]) {
+                openLectureDetailSheet(dayEvents[idx]);
+            }
         });
-        
-        detail.innerHTML = dHtml;
-        
-        // Detail lecture card click to open campus map modal
-        detail.querySelectorAll('.schedule-card-interactive').forEach(item => {
-            item.addEventListener('click', () => {
-                const idx = parseInt(item.dataset.scheduleIndex, 10);
-                if (!isNaN(idx) && dayEvents && dayEvents[idx]) {
-                    openLectureDetailSheet(dayEvents[idx]);
-                }
-            });
-        });
-    }
+    });
+}
+
+export function renderScheduleView() {
+    renderScheduleWidget();
+    renderScheduleDetail();
 }
 
 export async function loadSchedule() {
@@ -361,8 +353,29 @@ export async function loadSchedule() {
         if (content) content.innerHTML = '<div class="loading">Keine Gruppe (Einstellungen)</div>';
         return;
     }
-    if (content) content.innerHTML = getScheduleSkeleton(true);
-    if (detail && state.allScheduleEvents.length === 0) detail.innerHTML = getScheduleSkeleton(false);
+    
+    const cacheKey = `thd_cache_schedule_${state.studyGroup}`;
+    const cached = localStorage.getItem(cacheKey);
+    let hasValidCache = false;
+    
+    if (cached) {
+        try {
+            const { timestamp, data } = JSON.parse(cached);
+            // Cache is valid for 1 day
+            if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+                state.allScheduleEvents = parseICal(data);
+                if (state.allScheduleEvents.length > 0) {
+                    renderScheduleView();
+                    hasValidCache = true;
+                }
+            }
+        } catch(e) {}
+    }
+    
+    if (!hasValidCache) {
+        if (content) content.innerHTML = getScheduleSkeleton(true);
+        if (detail && state.allScheduleEvents.length === 0) detail.innerHTML = getScheduleSkeleton(false);
+    }
     
     try {
         const url = CONFIG.thabellaUrlBase + state.studyGroup;
@@ -370,12 +383,15 @@ export async function loadSchedule() {
         if (!res.ok) throw new Error();
         
         const text = await res.text();
+        localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: text }));
         state.allScheduleEvents = parseICal(text);
         renderScheduleView();
     } catch (e) {
         console.error('loadSchedule error:', e);
-        if (content) content.innerHTML = '<div class="loading">Fehler beim Laden</div>';
-        if (detail) detail.innerHTML = '<div class="loading">Fehler beim Laden</div>';
+        if (!hasValidCache) {
+            if (content) content.innerHTML = '<div class="loading">Fehler beim Laden</div>';
+            if (detail) detail.innerHTML = '<div class="loading">Fehler beim Laden</div>';
+        }
     }
 }
 

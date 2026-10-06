@@ -432,237 +432,254 @@ export async function loadMensaForDate(date) {
     }
     
     const dateIso = formatDateIso(state.currentMensaDate);
+    const cacheKey = `thd_cache_mensa_${dateIso}`;
     
-    if (content && !state.mensaCache[dateIso]) content.innerHTML = getMensaSkeleton(true);
-    if (detail && !state.mensaCache[dateIso]) detail.innerHTML = getMensaSkeleton(false);
-    
-    let meals = state.mensaCache[dateIso];
-    if (meals === undefined) {
+    let hasValidCache = false;
+    const cachedStr = localStorage.getItem(cacheKey);
+    if (cachedStr) {
         try {
-            const res = await fetch(`https://openmensa.org/api/v2/canteens/${CONFIG.openMensaCanteenId}/days/${dateIso}/meals`);
-            if (res.ok) {
-                meals = await res.json();
-                
-                // Fallbacks from STWNO image library
-                const fallbackImages = {
-                    'tiroler gröstl': 'https://stwno.de/infomax/Bilder/1996.JPG',
-                    'gemüse paella': 'https://stwno.de/infomax/Bilder/1378.JPG',
-                    'gemischter salat': 'https://stwno.de/infomax/Bilder/3516.JPG'
-                };
-                
-                const cachedImgMap = state.mensaImageCache ? state.mensaImageCache[dateIso] : null;
-                
-                meals.forEach(m => {
-                    const norm = (m.name || '').toLowerCase().trim();
-                    if (cachedImgMap && typeof cachedImgMap === 'object') {
-                        let found = null;
-                        for (const [stwnoName, url] of Object.entries(cachedImgMap)) {
-                            const clean = stwnoName.toLowerCase().trim();
-                            if (norm === clean || norm.includes(clean) || clean.includes(norm)) {
-                                found = url;
-                                break;
-                            }
-                        }
-                        m.imageUrl = found || null;
-                    } else {
-                        let fb = null;
-                        for (const [key, url] of Object.entries(fallbackImages)) {
-                            if (norm === key || norm.includes(key) || key.includes(norm)) {
-                                fb = url;
-                                break;
-                            }
-                        }
-                        m.imageUrl = fb !== null ? fb : undefined;
-                    }
-                });
-                
-                state.mensaCache[dateIso] = meals;
-            } else {
-                meals = [];
-                state.mensaCache[dateIso] = [];
+            const parsed = JSON.parse(cachedStr);
+            if (Date.now() - parsed.ts < 24 * 60 * 60 * 1000) {
+                state.mensaCache[dateIso] = parsed.data;
+                hasValidCache = true;
             }
-        } catch(e) {
-            meals = null;
-        }
+        } catch(e) {}
     }
     
-    if (!meals || meals.length === 0) {
-        state.currentLoadedMeals = [];
-        const emptyMsg = '<div class="loading" style="padding: 20px 0;">Keine Gerichte eingetragen oder Mensa geschlossen</div>';
-        if (content) content.innerHTML = emptyMsg;
-        if (detail) detail.innerHTML = emptyMsg;
-        return;
-    }
-    
-    state.currentLoadedMeals = meals;
-    // Assign stable dish IDs so image loading and filtering never mismatch
-    meals.forEach((m, i) => {
-        if (!m._dishId) {
-            m._dishId = m.id ? String(m.id) : `dish_${i}_${(m.name || '').substring(0, 12).replace(/\W+/g, '')}`;
+    if (content && !hasValidCache) content.innerHTML = getMensaSkeleton(true);
+    if (detail && !hasValidCache) detail.innerHTML = getMensaSkeleton(false);
+
+    const render = (mealsData) => {
+        if (!mealsData || mealsData.length === 0) {
+            state.currentLoadedMeals = [];
+            const emptyMsg = '<div class="loading" style="padding: 20px 0;">Keine Gerichte eingetragen oder Mensa geschlossen</div>';
+            if (content) content.innerHTML = emptyMsg;
+            if (detail) detail.innerHTML = emptyMsg;
+            return;
         }
-    });
-    const allowedMeals = meals.filter(isMealAllowed);
-    allowedMeals.sort((a, b) => getMealGroup(a).order - getMealGroup(b).order);
-    const hiddenMealsCount = meals.length - allowedMeals.length;
-    
-    // Widget content: allowed meals for the day (scrollable)
-    if (content) {
-        if (allowedMeals.length === 0) {
-            content.innerHTML = `<div class="loading" style="padding: 16px 0;">Keine Gerichte (${hiddenMealsCount} durch Filter ausgeblendet)</div>`;
-        } else {
-            let wHtml = '';
-            allowedMeals.forEach(m => {
-                const studentP = formatPrice(m.prices ? m.prices.students : null);
-                const grp = getMealGroup(m);
-                wHtml += `
-                    <div class="list-item mensa-widget-item">
-                        <div class="mensa-widget-text">
-                            <span class="list-title">${m.name.split(' (')[0].substring(0, 30)}</span>
-                            <span class="list-desc">${grp.label}</span>
-                        </div>
-                        <span class="mensa-widget-price">${studentP}</span>
-                    </div>
-                `;
-            });
-            content.innerHTML = wHtml;
-        }
-
-        // Ensure no hours badge on the mensa widget header
-        const mensaWidgetEl = document.querySelector('.widget[data-id="mensa"]');
-        if (mensaWidgetEl) {
-            const badge = mensaWidgetEl.querySelector('.widget-badge');
-            if (badge) badge.remove();
-        }
-    }
-    
-    // Detail subpage
-    if (detail) {
-        let dHtml = '';
-
-        if (allowedMeals.length === 0) {
-            dHtml += `
-                <div class="loading" style="padding: 30px 0; display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                    <span>Keine passenden Gerichte für die aktuellen Filtereinstellungen (${hiddenMealsCount} ausgeblendet).</span>
-                    <button class="filter-reset-btn" id="btn-empty-mensa-filter" style="max-width: 220px;">Filter anpassen</button>
-                </div>
-            `;
-        } else {
-            const groupDefs = [
-                { id: 'starter', label: 'Vorspeise / Suppe', order: 1 },
-                { id: 'main', label: 'Hauptgericht', order: 2 },
-                { id: 'side', label: 'Beilage', order: 3 },
-                { id: 'dessert', label: 'Nachspeise', order: 4 },
-                { id: 'other', label: 'Sonstiges', order: 5 }
-            ];
-
-            const groupedMeals = new Map();
-            groupDefs.forEach(g => groupedMeals.set(g.id, { def: g, items: [] }));
-
-            allowedMeals.forEach(m => {
-                const g = getMealGroup(m);
-                if (!groupedMeals.has(g.id)) {
-                    groupedMeals.set(g.id, { def: g, items: [] });
-                }
-                groupedMeals.get(g.id).items.push(m);
-            });
-
-            groupedMeals.forEach(({ def, items }) => {
-                if (items.length === 0) return;
-
-                dHtml += `
-                    <section class="meal-category-group">
-                        <div class="meal-category-header">
-                            <h3 class="meal-category-title">${def.label}</h3>
-                        </div>
-                        <div class="meal-category-list">
-                `;
-
-                items.forEach(m => {
+        
+        state.currentLoadedMeals = mealsData;
+        // Assign stable dish IDs so image loading and filtering never mismatch
+        mealsData.forEach((m, i) => {
+            if (!m._dishId) {
+                m._dishId = m.id ? String(m.id) : `dish_${i}_${(m.name || '').substring(0, 12).replace(/\W+/g, '')}`;
+            }
+        });
+        const allowedMeals = mealsData.filter(isMealAllowed);
+        allowedMeals.sort((a, b) => getMealGroup(a).order - getMealGroup(b).order);
+        const hiddenMealsCount = mealsData.length - allowedMeals.length;
+        
+        if (content) {
+            if (allowedMeals.length === 0) {
+                content.innerHTML = `<div class="loading" style="padding: 16px 0;">Keine Gerichte (${hiddenMealsCount} durch Filter ausgeblendet)</div>`;
+            } else {
+                let wHtml = '<div style="display:flex; flex-direction:column; flex:1; overflow-y:auto; padding-right:4px;">';
+                allowedMeals.forEach(m => {
                     const studentP = formatPrice(m.prices ? m.prices.students : null);
-                    
-                    const dietBadges = [];
-                    const notes = m.notes || [];
-                    notes.forEach(note => {
-                        const cat = categorizeNote(note);
-                        if (cat.type !== 'neutral' && !dietBadges.some(b => b.label === cat.label)) {
-                            dietBadges.push(cat);
-                        }
-                    });
-                    const mName = (m.name || '').toLowerCase();
-                    if (!dietBadges.some(b => b.label === 'Alkohol') &&
-                        (mName.includes('weißbier') || mName.includes('bier') || mName.includes('rotwein') || mName.includes('weißwein') || mName.includes('wein ') || mName.includes('weinsauce') || mName.includes('likör') || mName.includes('rum') || mName.includes('cognac'))
-                    ) {
-                        dietBadges.push({ label: 'Alkohol', type: 'alcohol' });
-                    }
-                    
-                    const badgesHtml = dietBadges.map(b => `<span class="diet-badge ${b.type}">${b.label}</span>`).join('');
-                    
-                    let thumbHtml = '';
-                    if (m.imageUrl) {
-                        thumbHtml = `<div class="meal-card-thumb-wrap" id="meal-thumb-wrap-${m._dishId}"><img src="${m.imageUrl}" class="meal-card-thumb loaded" alt="${m.name}" onerror="this.parentElement.remove()"></div>`;
-                    } else if (m.imageUrl === undefined) {
-                        thumbHtml = `<div class="meal-card-thumb-wrap" id="meal-thumb-wrap-${m._dishId}"><div class="shimmer-box meal-card-thumb-shimmer"></div></div>`;
-                    }
-                    
-                    dHtml += `
-                        <div class="card-item meal-card-interactive" data-meal-id="${m._dishId}">
-                            <div class="meal-card-body">
-                                ${thumbHtml}
-                                <div class="meal-card-info">
-                                    <h3 class="meal-dish-name">${m.name}</h3>
-                                    <div class="meal-header-left">
-                                        ${badgesHtml}
-                                    </div>
-                                </div>
-                                <div class="meal-price-column">
-                                    <span class="meal-price-right">${studentP}</span>
-                                    <span class="meal-price-sub">Studierende</span>
-                                </div>
-                            </div>
+                    wHtml += `
+                        <div class="list-item mensa-widget-item" style="padding:4px 0; flex-shrink:0;">
+                            <span class="list-title" style="font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.name.split(' (')[0]}</span>
+                            <span class="mensa-widget-price" style="font-size:14px; margin-left:8px;">${studentP}</span>
                         </div>
                     `;
                 });
+                wHtml += '</div>';
+                wHtml += '<div class="mensa-widget-images" id="mensa-widget-images" style="flex-shrink:0;"></div>';
+                
+                content.innerHTML = wHtml;
+                content.style.display = 'flex';
+                content.style.flexDirection = 'column';
+                content.style.height = '100%';
+            }
 
+            const mensaWidgetEl = document.querySelector('.widget[data-id="mensa"]');
+            if (mensaWidgetEl) {
+                const badge = mensaWidgetEl.querySelector('.widget-badge');
+                if (badge) badge.remove();
+            }
+        }
+        
+        if (detail) {
+            let dHtml = '';
+
+            if (allowedMeals.length === 0) {
                 dHtml += `
-                        </div>
-                    </section>
+                    <div class="loading" style="padding: 30px 0; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                        <span>Keine passenden Gerichte für die aktuellen Filtereinstellungen (${hiddenMealsCount} ausgeblendet).</span>
+                        <button class="filter-reset-btn" id="btn-empty-mensa-filter" style="max-width: 220px;">Filter anpassen</button>
+                    </div>
                 `;
+            } else {
+                const groupDefs = [
+                    { id: 'starter', label: 'Vorspeise / Suppe', order: 1 },
+                    { id: 'main', label: 'Hauptgericht', order: 2 },
+                    { id: 'side', label: 'Beilage', order: 3 },
+                    { id: 'dessert', label: 'Nachspeise', order: 4 },
+                    { id: 'other', label: 'Sonstiges', order: 5 }
+                ];
+
+                const groupedMeals = new Map();
+                groupDefs.forEach(g => groupedMeals.set(g.id, { def: g, items: [] }));
+
+                allowedMeals.forEach(m => {
+                    const g = getMealGroup(m);
+                    if (!groupedMeals.has(g.id)) {
+                        groupedMeals.set(g.id, { def: g, items: [] });
+                    }
+                    groupedMeals.get(g.id).items.push(m);
+                });
+
+                groupedMeals.forEach(({ def, items }) => {
+                    if (items.length === 0) return;
+
+                    dHtml += `
+                        <section class="meal-category-group">
+                            <div class="meal-category-header">
+                                <h3 class="meal-category-title">${def.label}</h3>
+                            </div>
+                            <div class="meal-category-list">
+                    `;
+
+                    items.forEach(m => {
+                        const studentP = formatPrice(m.prices ? m.prices.students : null);
+                        
+                        const dietBadges = [];
+                        const notes = m.notes || [];
+                        notes.forEach(note => {
+                            const cat = categorizeNote(note);
+                            if (cat.type !== 'neutral' && !dietBadges.some(b => b.label === cat.label)) {
+                                dietBadges.push(cat);
+                            }
+                        });
+                        const mName = (m.name || '').toLowerCase();
+                        if (!dietBadges.some(b => b.label === 'Alkohol') &&
+                            (mName.includes('weißbier') || mName.includes('bier') || mName.includes('rotwein') || mName.includes('weißwein') || mName.includes('wein ') || mName.includes('weinsauce') || mName.includes('likör') || mName.includes('rum') || mName.includes('cognac'))
+                        ) {
+                            dietBadges.push({ label: 'Alkohol', type: 'alcohol' });
+                        }
+                        
+                        const badgesHtml = dietBadges.map(b => `<span class="diet-badge ${b.type}">${b.label}</span>`).join('');
+                        
+                        let thumbHtml = '';
+                        if (m.imageUrl) {
+                            thumbHtml = `<div class="meal-card-thumb-wrap" id="meal-thumb-wrap-${m._dishId}"><img src="${m.imageUrl}" class="meal-card-thumb loaded" alt="${m.name}" onerror="this.parentElement.remove()"></div>`;
+                        } else if (m.imageUrl === undefined) {
+                            thumbHtml = `<div class="meal-card-thumb-wrap" id="meal-thumb-wrap-${m._dishId}"><div class="shimmer-box meal-card-thumb-shimmer"></div></div>`;
+                        }
+                        
+                        dHtml += `
+                            <div class="card-item meal-card-interactive" data-meal-id="${m._dishId}">
+                                <div class="meal-card-body">
+                                    ${thumbHtml}
+                                    <div class="meal-card-info">
+                                        <h3 class="meal-dish-name">${m.name}</h3>
+                                        <div class="meal-header-left">
+                                            ${badgesHtml}
+                                        </div>
+                                    </div>
+                                    <div class="meal-price-column">
+                                        <span class="meal-price-right">${studentP}</span>
+                                        <span class="meal-price-sub">Studierende</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    dHtml += `
+                            </div>
+                        </section>
+                    `;
+                });
+            }
+            
+            if (hiddenMealsCount > 0) {
+                dHtml += `
+                    <div class="hidden-items-banner">
+                        <span>${hiddenMealsCount} Gericht(e) durch Filter ausgeblendet</span>
+                        <button id="btn-banner-mensa-filter">Filter anpassen</button>
+                    </div>
+                `;
+            }
+            
+            detail.innerHTML = dHtml;
+            updateMensaFilterDot();
+            
+            if (mealsData && mealsData.some(m => m.imageUrl === undefined)) {
+                fetchMensaImagesInBackground(dateIso, mealsData);
+            }
+            
+            detail.querySelectorAll('.meal-card-interactive').forEach(card => {
+                card.addEventListener('click', () => {
+                    const dishId = card.dataset.mealId;
+                    const meal = allowedMeals.find(m => m._dishId === dishId);
+                    if (meal) {
+                        openMealDetailSheet(meal);
+                    }
+                });
             });
+            
+            const bannerBtn = document.getElementById('btn-banner-mensa-filter');
+            if (bannerBtn) bannerBtn.addEventListener('click', openMensaFilterSheet);
+
+            const emptyBtn = document.getElementById('btn-empty-mensa-filter');
+            if (emptyBtn) emptyBtn.addEventListener('click', openMensaFilterSheet);
         }
-        
-        if (hiddenMealsCount > 0) {
-            dHtml += `
-                <div class="hidden-items-banner">
-                    <span>${hiddenMealsCount} Gericht(e) durch Filter ausgeblendet</span>
-                    <button id="btn-banner-mensa-filter">Filter anpassen</button>
-                </div>
-            `;
-        }
-        
-        detail.innerHTML = dHtml;
-        updateMensaFilterDot();
-        
-        // Trigger background image loading if any meal still needs images
-        if (meals && meals.some(m => m.imageUrl === undefined)) {
-            fetchMensaImagesInBackground(dateIso, meals);
-        }
-        
-        detail.querySelectorAll('.meal-card-interactive').forEach(card => {
-            card.addEventListener('click', () => {
-                const dishId = card.dataset.mealId;
-                const meal = allowedMeals.find(m => m._dishId === dishId);
-                if (meal) {
-                    openMealDetailSheet(meal);
+    };
+
+    if (hasValidCache && state.mensaCache[dateIso]) {
+        render(state.mensaCache[dateIso]);
+    }
+
+    // Always fetch in background to update cache and view
+    fetch(`https://openmensa.org/api/v2/canteens/${CONFIG.openMensaCanteenId}/days/${dateIso}/meals`)
+        .then(res => {
+            if (res.ok) return res.json();
+            throw new Error('Mensa API offline');
+        })
+        .then(meals => {
+            const fallbackImages = {
+                'tiroler gröstl': 'https://stwno.de/infomax/Bilder/1996.JPG',
+                'gemüse paella': 'https://stwno.de/infomax/Bilder/1378.JPG',
+                'gemischter salat': 'https://stwno.de/infomax/Bilder/3516.JPG'
+            };
+            
+            const cachedImgMap = state.mensaImageCache ? state.mensaImageCache[dateIso] : null;
+            
+            meals.forEach(m => {
+                const norm = (m.name || '').toLowerCase().trim();
+                if (cachedImgMap && typeof cachedImgMap === 'object') {
+                    let found = null;
+                    for (const [stwnoName, url] of Object.entries(cachedImgMap)) {
+                        const clean = stwnoName.toLowerCase().trim();
+                        if (norm === clean || norm.includes(clean) || clean.includes(norm)) {
+                            found = url;
+                            break;
+                        }
+                    }
+                    m.imageUrl = found || null;
+                } else {
+                    let fb = null;
+                    for (const [key, url] of Object.entries(fallbackImages)) {
+                        if (norm === key || norm.includes(key) || key.includes(norm)) {
+                            fb = url;
+                            break;
+                        }
+                    }
+                    m.imageUrl = fb !== null ? fb : undefined;
                 }
             });
+            
+            state.mensaCache[dateIso] = meals;
+            localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: meals }));
+            render(meals);
+        })
+        .catch(e => {
+            if (!hasValidCache) {
+                state.mensaCache[dateIso] = [];
+                render([]);
+            }
         });
-        
-        const bannerBtn = document.getElementById('btn-banner-mensa-filter');
-        if (bannerBtn) bannerBtn.addEventListener('click', openMensaFilterSheet);
-
-        const emptyBtn = document.getElementById('btn-empty-mensa-filter');
-        if (emptyBtn) emptyBtn.addEventListener('click', openMensaFilterSheet);
-    }
 }
 
 async function fetchMensaImagesInBackground(dateIso, meals) {
@@ -714,6 +731,28 @@ async function fetchMensaImagesInBackground(dateIso, meals) {
 }
 
 function updateMensaImagesInDom(meals) {
+    const widgetImgContainer = document.getElementById('mensa-widget-images');
+    if (widgetImgContainer) {
+        let withImages = meals.filter(m => m.imageUrl);
+        if (withImages.length > 0) {
+            // Sort to prefer main dishes (order === 2), then others
+            withImages.sort((a, b) => {
+                const oa = getMealGroup(a).order;
+                const ob = getMealGroup(b).order;
+                // Special case: we want order 2 to be the absolute first
+                const pa = oa === 2 ? 0 : oa;
+                const pb = ob === 2 ? 0 : ob;
+                return pa - pb;
+            });
+            
+            let imgHtml = '';
+            withImages.slice(0, 6).forEach((m, i) => {
+                imgHtml += `<img src="${m.imageUrl}" class="mensa-widget-circle" style="z-index: ${10 - i};">`;
+            });
+            widgetImgContainer.innerHTML = imgHtml;
+        }
+    }
+
     meals.forEach((m) => {
         const wrap = document.getElementById(`meal-thumb-wrap-${m._dishId}`);
         if (!wrap) return;

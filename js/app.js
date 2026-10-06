@@ -7,6 +7,7 @@ import { loadMensaForDate, setupMensaListeners } from './modules/mensa.js';
 import { loadSchedule, setupScheduleListeners } from './modules/schedule.js';
 import { loadEvents } from './modules/events.js';
 import { loadWebcam, setupWebcamListeners } from './modules/webcam.js';
+import { loadWeather } from './modules/weather.js';
 
 // Service Worker Registration
 if ('serviceWorker' in navigator) {
@@ -16,6 +17,7 @@ if ('serviceWorker' in navigator) {
 // Global Data Fetcher
 export async function fetchData() {
     if (state.widgets.find(w => w.id === 'parking' && w.enabled)) loadParking();
+    if (state.widgets.find(w => w.id === 'weather' && w.enabled)) loadWeather();
     if (state.widgets.find(w => w.id === 'mensa' && w.enabled)) loadMensaForDate(state.currentMensaDate);
     if (state.widgets.find(w => w.id === 'events' && w.enabled)) loadEvents();
     if (state.widgets.find(w => w.id === 'webcam' && w.enabled)) loadWebcam();

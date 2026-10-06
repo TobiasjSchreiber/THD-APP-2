@@ -1,11 +1,12 @@
 // Global State Management
 
 export const defaultWidgets = [
-    { id: 'schedule', title: 'Stundenplan', enabled: true, spanX: 2 },
-    { id: 'parking', title: 'Parkhaus', enabled: true, spanX: 1 },
-    { id: 'mensa', title: 'Speiseplan', enabled: true, spanX: 1 },
-    { id: 'events', title: 'Events', enabled: true, spanX: 1 },
-    { id: 'webcam', title: 'Campus Webcam', enabled: true, spanX: 1 }
+    { id: 'schedule', title: 'Stundenplan', enabled: true, spanX: 1, colWeight: 1.15 },
+    { id: 'parking', title: 'Parkhaus', enabled: true, spanX: 1, colWeight: 0.85 },
+    { id: 'weather', title: 'Wetter', enabled: true, spanX: 1, colWeight: 0.85 },
+    { id: 'mensa', title: 'Speiseplan', enabled: true, spanX: 1, colWeight: 1.15 },
+    { id: 'events', title: 'Events', enabled: true, spanX: 1, colWeight: 1.15 },
+    { id: 'webcam', title: 'Campus Webcam', enabled: true, spanX: 1, colWeight: 0.85 }
 ];
 
 export const defaultMensaFilters = {
@@ -28,7 +29,7 @@ export const defaultMensaFilters = {
 
 export const state = {
     widgets: JSON.parse(JSON.stringify(defaultWidgets)),
-    gridRowWeights: [1.25, 1.0, 1.1],
+    gridRowWeights: [1.35, 1.15, 1.2],
     gridColWeights: [1.0, 1.0],
     studyGroup: 'MT-MP5',
     
@@ -52,7 +53,7 @@ export const state = {
 
 export function loadSavedState() {
     try {
-        const savedWidgets = localStorage.getItem('thd2_widgets_v3');
+        const savedWidgets = localStorage.getItem('thd2_widgets_v6');
         if (savedWidgets) {
             const parsed = JSON.parse(savedWidgets);
             const hasWebcam = parsed.some(pw => pw.id === 'webcam');
@@ -68,10 +69,10 @@ export function loadSavedState() {
             });
         }
         
-        const savedRows = localStorage.getItem('thd2_row_weights');
+        const savedRows = localStorage.getItem('thd2_row_weights_v6');
         if (savedRows) state.gridRowWeights = JSON.parse(savedRows);
         
-        const savedCols = localStorage.getItem('thd2_col_weights');
+        const savedCols = localStorage.getItem('thd2_col_weights_v6');
         if (savedCols) state.gridColWeights = JSON.parse(savedCols);
         
         const savedGroup = localStorage.getItem('thd_studygroup');
@@ -91,9 +92,9 @@ export function loadSavedState() {
 
 export function saveState() {
     try {
-        localStorage.setItem('thd2_widgets_v3', JSON.stringify(state.widgets));
-        localStorage.setItem('thd2_row_weights', JSON.stringify(state.gridRowWeights));
-        localStorage.setItem('thd2_col_weights', JSON.stringify(state.gridColWeights));
+        localStorage.setItem('thd2_widgets_v6', JSON.stringify(state.widgets));
+        localStorage.setItem('thd2_row_weights_v6', JSON.stringify(state.gridRowWeights));
+        localStorage.setItem('thd2_col_weights_v6', JSON.stringify(state.gridColWeights));
         localStorage.setItem('thd_studygroup', state.studyGroup);
         localStorage.setItem('thd_mensa_filters', JSON.stringify(state.mensaFilters));
         localStorage.setItem('thd_hidden_lectures', JSON.stringify(state.hiddenLectures));

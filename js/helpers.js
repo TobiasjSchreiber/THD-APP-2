@@ -240,26 +240,17 @@ export function getMensaSkeleton(isWidget = true) {
     if (isWidget) {
         return `
             <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 8px;">
-                    <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                        <div class="shimmer-box" style="width: 70%; height: 13px;"></div>
-                        <div class="shimmer-box" style="width: 40%; height: 10px;"></div>
-                    </div>
-                    <div class="shimmer-box" style="width: 40px; height: 16px; border-radius: 4px;"></div>
+                <div class="list-item mensa-widget-item">
+                    <div class="shimmer-box" style="flex: 1; height: 14px;"></div>
+                    <div class="shimmer-box" style="width: 40px; height: 14px; margin-left: 8px;"></div>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 8px;">
-                    <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                        <div class="shimmer-box" style="width: 85%; height: 13px;"></div>
-                        <div class="shimmer-box" style="width: 35%; height: 10px;"></div>
-                    </div>
-                    <div class="shimmer-box" style="width: 44px; height: 16px; border-radius: 4px;"></div>
+                <div class="list-item mensa-widget-item">
+                    <div class="shimmer-box" style="flex: 1; height: 14px;"></div>
+                    <div class="shimmer-box" style="width: 44px; height: 14px; margin-left: 8px;"></div>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px 8px;">
-                    <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                        <div class="shimmer-box" style="width: 60%; height: 13px;"></div>
-                        <div class="shimmer-box" style="width: 45%; height: 10px;"></div>
-                    </div>
-                    <div class="shimmer-box" style="width: 38px; height: 16px; border-radius: 4px;"></div>
+                <div class="list-item mensa-widget-item">
+                    <div class="shimmer-box" style="flex: 1; height: 14px;"></div>
+                    <div class="shimmer-box" style="width: 38px; height: 14px; margin-left: 8px;"></div>
                 </div>
             </div>
         `;
@@ -307,19 +298,13 @@ export function getScheduleSkeleton(isWidget = true) {
     if (isWidget) {
         return `
             <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                <div class="list-item" style="display: flex; flex-direction: column; gap: 6px;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <div class="shimmer-box" style="width: 85px; height: 12px;"></div>
-                        <div class="shimmer-box" style="width: 45px; height: 12px;"></div>
-                    </div>
-                    <div class="shimmer-box" style="width: 75%; height: 15px;"></div>
+                <div class="list-item schedule-widget-item">
+                    <div class="shimmer-box" style="flex: 1; height: 14px;"></div>
+                    <div class="shimmer-box" style="width: 40px; height: 14px; margin-left: 8px;"></div>
                 </div>
-                <div class="list-item" style="display: flex; flex-direction: column; gap: 6px;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <div class="shimmer-box" style="width: 90px; height: 12px;"></div>
-                        <div class="shimmer-box" style="width: 40px; height: 12px;"></div>
-                    </div>
-                    <div class="shimmer-box" style="width: 65%; height: 15px;"></div>
+                <div class="list-item schedule-widget-item">
+                    <div class="shimmer-box" style="flex: 1; height: 14px;"></div>
+                    <div class="shimmer-box" style="width: 40px; height: 14px; margin-left: 8px;"></div>
                 </div>
             </div>
         `;
@@ -358,13 +343,13 @@ export function getEventsSkeleton(isWidget = true) {
     if (isWidget) {
         return `
             <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                <div class="list-item" style="display: flex; flex-direction: column; gap: 6px;">
-                    <div class="shimmer-box" style="width: 80%; height: 14px;"></div>
-                    <div class="shimmer-box" style="width: 50%; height: 11px;"></div>
+                <div class="list-item events-widget-item">
+                    <div class="shimmer-box" style="flex: 1; height: 14px;"></div>
+                    <div class="shimmer-box" style="width: 45px; height: 14px; margin-left: 8px;"></div>
                 </div>
-                <div class="list-item" style="display: flex; flex-direction: column; gap: 6px;">
-                    <div class="shimmer-box" style="width: 65%; height: 14px;"></div>
-                    <div class="shimmer-box" style="width: 45%; height: 11px;"></div>
+                <div class="list-item events-widget-item">
+                    <div class="shimmer-box" style="flex: 1; height: 14px;"></div>
+                    <div class="shimmer-box" style="width: 45px; height: 14px; margin-left: 8px;"></div>
                 </div>
             </div>
         `;

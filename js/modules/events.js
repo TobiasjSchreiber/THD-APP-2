@@ -5,8 +5,32 @@ import { parseICal, getEventsSkeleton } from '../helpers.js';
 export async function loadEvents() {
     const content = document.getElementById('widget-content-events');
     const detail = document.getElementById('content-events');
-    if (content) content.innerHTML = getEventsSkeleton(true);
-    if (detail) detail.innerHTML = getEventsSkeleton(false);
+    
+    const cacheKey = 'thd_cache_events';
+    const cached = localStorage.getItem(cacheKey);
+    let hasValidCache = false;
+    
+    if (cached) {
+        try {
+            const { timestamp, data } = JSON.parse(cached);
+            if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+                const cachedEvents = data.map(e => ({
+                    ...e,
+                    start: new Date(e.start),
+                    end: e.end ? new Date(e.end) : null
+                }));
+                if (cachedEvents.length > 0) {
+                    renderEventsToUi(cachedEvents, content, detail, 'Events');
+                    hasValidCache = true;
+                }
+            }
+        } catch(e) {}
+    }
+    
+    if (!hasValidCache) {
+        if (content) content.innerHTML = getEventsSkeleton(true);
+        if (detail) detail.innerHTML = getEventsSkeleton(false);
+    }
     
     try {
         const targetUrl = CONFIG.thdEventsUrl;
@@ -40,11 +64,14 @@ export async function loadEvents() {
         const events = [];
         results.forEach(parsed => events.push(...parsed));
         
+        localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: events }));
         renderEventsToUi(events, content, detail, 'Events');
     } catch (e) {
         console.error('loadEvents error:', e);
-        if (content) content.innerHTML = '<div class="loading">Fehler beim Laden</div>';
-        if (detail) detail.innerHTML = '<div class="loading">Fehler beim Laden</div>';
+        if (!hasValidCache) {
+            if (content) content.innerHTML = '<div class="loading">Fehler beim Laden</div>';
+            if (detail) detail.innerHTML = '<div class="loading">Fehler beim Laden</div>';
+        }
     }
 }
 
@@ -65,12 +92,11 @@ export function renderEventsToUi(events, content, detail, emptyMsg) {
     
     let html = '';
     validEvents.forEach(e => {
-        const time = e.start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
         const date = e.start.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
         html += `
-            <div class="list-item">
-                <span class="list-title">${e.summary.substring(0, 30)}${e.summary.length > 30 ? '...' : ''}</span>
-                <span class="list-desc">${date} ${time} ${e.location ? '| ' + e.location : ''}</span>
+            <div class="list-item events-widget-item">
+                <span class="list-title">${e.summary}</span>
+                <span class="events-widget-date">${date}</span>
             </div>
         `;
     });
@@ -84,7 +110,7 @@ export function renderEventsToUi(events, content, detail, emptyMsg) {
             <div class="card-item">
                 <div class="card-item-header">
                     <span class="time-tag">${date} um ${time} Uhr</span>
-                    ${e.location ? `<span class="badge-tag">${e.location}</span>` : ''}
+                    ${e.location ? `<span class="location-tag">${e.location}</span>` : ''}
                 </div>
                 <span class="list-title" style="font-size: 17px; margin-top: 2px;">${e.summary}</span>
             </div>

@@ -38,7 +38,6 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     </button>
                     <div class="header-top-right">
-                        <span class="subpage-badge">Stundenplan</span>
                         <button class="icon-btn btn-header-action" id="btn-schedule-filter" aria-label="Vorlesungen anpassen">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                         </button>
@@ -61,12 +60,16 @@
 
         <!-- Parking Page -->
         <div id="page-parking" class="page">
-            <header>
-                <div class="header-content">
+            <header class="subpage-header">
+                <div class="header-top-bar">
                     <button class="icon-btn btn-back" aria-label="Zurück">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     </button>
-                    <h2>Parkhaus</h2>
+                    <div class="header-top-right"></div>
+                </div>
+                <div class="header-title-block">
+                    <span class="header-date-sub">Stadtparken Deggendorf</span>
+                    <h1 class="header-date-main">Parkplätze</h1>
                 </div>
             </header>
             <main class="page-content" id="content-parking"></main>
@@ -80,7 +83,6 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     </button>
                     <div class="header-top-right">
-                        <span class="subpage-badge">Speiseplan</span>
                         <button class="icon-btn btn-header-action" id="btn-mensa-hours" aria-label="Öffnungszeiten" title="Öffnungszeiten">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                             <span class="btn-header-status-dot" id="mensa-header-status-dot"></span>
@@ -108,12 +110,16 @@
 
         <!-- Events Page -->
         <div id="page-events" class="page">
-            <header>
-                <div class="header-content">
+            <header class="subpage-header">
+                <div class="header-top-bar">
                     <button class="icon-btn btn-back" aria-label="Zurück">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     </button>
-                    <h2>Eventkalender</h2>
+                    <div class="header-top-right"></div>
+                </div>
+                <div class="header-title-block">
+                    <span class="header-date-sub">TH Deggendorf</span>
+                    <h1 class="header-date-main">Veranstaltungen</h1>
                 </div>
             </header>
             <main class="page-content" id="content-events"></main>
@@ -127,15 +133,14 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     </button>
                     <div class="header-top-right">
-                        <span class="subpage-badge">Webcam</span>
                         <button class="icon-btn btn-header-action" id="btn-refresh-webcam" aria-label="Webcam aktualisieren" title="Aktualisieren">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                         </button>
                     </div>
                 </div>
-                <div style="padding: 6px 0 14px 0;">
-                    <h1 class="header-date-main" style="font-size: 24px; margin-bottom: 2px;">Campus Deggendorf</h1>
+                <div class="header-title-block">
                     <span class="header-date-sub" id="webcam-status-text">Wird geladen...</span>
+                    <h1 class="header-date-main">Campus</h1>
                 </div>
             </header>
             <main class="page-content" id="content-webcam" style="padding: 12px 16px 32px;">
@@ -152,14 +157,35 @@
             </main>
         </div>
 
-        <!-- Settings Page -->
-        <div id="page-settings" class="page">
-            <header>
-                <div class="header-content">
+        <!-- Weather Page -->
+        <div id="page-weather" class="page">
+            <header class="subpage-header">
+                <div class="header-top-bar">
                     <button class="icon-btn btn-back" aria-label="Zurück">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     </button>
-                    <h2>Einstellungen</h2>
+                    <div class="header-top-right"></div>
+                </div>
+                <div class="header-title-block">
+                    <span class="header-date-sub" id="weather-status-text">Campus Deggendorf</span>
+                    <h1 class="header-date-main">Deggendorf</h1>
+                </div>
+            </header>
+            <main class="page-content" id="content-weather"></main>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="page-settings" class="page">
+            <header class="subpage-header">
+                <div class="header-top-bar">
+                    <button class="icon-btn btn-back" aria-label="Zurück">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                    <div class="header-top-right"></div>
+                </div>
+                <div class="header-title-block">
+                    <span class="header-date-sub">Widgets &amp; Studiengruppe</span>
+                    <h1 class="header-date-main">Dein Dashboard</h1>
                 </div>
             </header>
             <main class="page-content">

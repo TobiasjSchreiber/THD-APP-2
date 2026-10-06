@@ -1,7 +1,7 @@
 // Navigation, Subpage Headers, Date Picker Sheet & Bounce Control
 import { state } from './state.js';
 import { isSameDay, formatDateIso, getRelativeDayString, getWeekDays } from './helpers.js';
-import { renderScheduleView } from './modules/schedule.js';
+import { renderScheduleDetail } from './modules/schedule.js';
 import { loadMensaForDate, updateMensaHeaderStatus } from './modules/mensa.js';
 
 let isInternalHistoryChange = false;
@@ -35,7 +35,7 @@ export function setSubpageDate(type, newDate) {
     if (type === 'schedule') {
         state.currentScheduleDate = new Date(newDate);
         updateSubpageHeader('schedule');
-        renderScheduleView();
+        renderScheduleDetail();
     } else if (type === 'mensa') {
         state.currentMensaDate = new Date(newDate);
         updateSubpageHeader('mensa');
@@ -93,7 +93,43 @@ export function renderSubpageWeekdayStrip(type) {
             e.stopPropagation();
             const parts = btn.dataset.date.split('-');
             const newDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-            setSubpageDate(type, newDate);
+            const oldDate = type === 'schedule' ? state.currentScheduleDate : state.currentMensaDate;
+            const isNext = newDate > oldDate;
+            
+            if (document.startViewTransition) {
+                document.documentElement.classList.remove('slide-left', 'slide-right');
+                document.documentElement.classList.add(isNext ? 'slide-left' : 'slide-right');
+                const transition = document.startViewTransition(() => {
+                    setSubpageDate(type, newDate);
+                });
+                transition.finished.finally(() => {
+                    document.documentElement.classList.remove('slide-left', 'slide-right');
+                });
+            } else {
+                // Fallback manual CSS animation for Safari/iOS
+                const contentEl = type === 'schedule' ? document.getElementById('content-schedule') : document.getElementById('content-mensa');
+                if (contentEl) {
+                    contentEl.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+                    contentEl.style.transform = isNext ? 'translateX(-30px)' : 'translateX(30px)';
+                    contentEl.style.opacity = '0';
+                    setTimeout(() => {
+                        setSubpageDate(type, newDate);
+                        contentEl.style.transition = 'none';
+                        contentEl.style.transform = isNext ? 'translateX(30px)' : 'translateX(-30px)';
+                        void contentEl.offsetWidth; // force reflow
+                        contentEl.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease';
+                        contentEl.style.transform = 'translateX(0)';
+                        contentEl.style.opacity = '1';
+                        setTimeout(() => {
+                            contentEl.style.transition = '';
+                            contentEl.style.transform = '';
+                            contentEl.style.opacity = '';
+                        }, 250);
+                    }, 200);
+                } else {
+                    setSubpageDate(type, newDate);
+                }
+            }
         };
     });
 }

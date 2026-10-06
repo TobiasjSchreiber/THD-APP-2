@@ -72,32 +72,174 @@ export function renderDashboard() {
             clone.querySelector('.widget-content').id = `widget-content-${w.id}`;
             
             // Open details
-            clone.querySelector('.widget-more').addEventListener('click', (e) => {
-                e.stopPropagation();
-                openPage(`page-${w.id}`);
-            });
+            const moreBtn = clone.querySelector('.widget-more');
+            if (w.id === 'webcam') {
+                moreBtn.style.display = 'none';
+            } else {
+                moreBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openPage(`page-${w.id}`);
+                });
+            }
             
             let pStartY = 0;
             let pStartX = 0;
             let hasMoved = false;
             
+            // ---- Long-press to drag & swap widgets ----
+            const LONG_PRESS_MS = 450;
+            let pressTimer = null;
+            let dragging = false;
+            let suppressClick = false;
+            let dropTarget = null;
+            let dropRegion = 'center';
+            
+            const clearPress = () => {
+                if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+            };
+            
+            const findDropTarget = (x, y) => {
+                const els = document.elementsFromPoint(x, y);
+                for (const el of els) {
+                    const wEl = el.closest && el.closest('.widget');
+                    if (wEl && wEl !== widgetEl && dashboardGrid.contains(wEl)) return wEl;
+                }
+                return null;
+            };
+            
+            const startDrag = (startX, startY) => {
+                dragging = true;
+                hasMoved = true;
+                suppressClick = true;
+                widgetEl.classList.add('is-dragging');
+                dashboardGrid.classList.add('is-reordering');
+                if (navigator.vibrate) navigator.vibrate(15);
+                
+                const onDragMove = (me) => {
+                    const dx = me.clientX - startX;
+                    const dy = me.clientY - startY;
+                    widgetEl.style.transform = `translate(${dx}px, ${dy}px) scale(1.04)`;
+                    
+                    const target = findDropTarget(me.clientX, me.clientY);
+                    let newRegion = 'center';
+                    
+                    if (target) {
+                        const screenW = window.innerWidth;
+                        if (me.clientX < screenW * 0.35) newRegion = 'left';
+                        else if (me.clientX > screenW * 0.65) newRegion = 'right';
+                        else newRegion = 'center';
+                    }
+                    
+                    if (target !== dropTarget || dropRegion !== newRegion) {
+                        if (dropTarget) {
+                            dropTarget.classList.remove('drop-target', 'drop-target-left', 'drop-target-right', 'drop-target-center');
+                            const row = dropTarget.closest('.dashboard-row');
+                            if (row) row.classList.remove('drop-target-row-center');
+                        }
+                        dropTarget = target;
+                        dropRegion = newRegion;
+                        
+                        if (dropTarget) {
+                            dropTarget.classList.add('drop-target', `drop-target-${dropRegion}`);
+                            if (dropRegion === 'center') {
+                                const row = dropTarget.closest('.dashboard-row');
+                                if (row) row.classList.add('drop-target-row-center');
+                            }
+                        }
+                    }
+                };
+                
+                const onDragEnd = () => {
+                    document.removeEventListener('pointermove', onDragMove);
+                    document.removeEventListener('pointerup', onDragEnd);
+                    document.removeEventListener('pointercancel', onDragEnd);
+                    dragging = false;
+                    dashboardGrid.classList.remove('is-reordering');
+                    
+                    const target = dropTarget;
+                    const region = dropRegion;
+                    dropTarget = null;
+                    dropRegion = 'center';
+                    
+                    if (target) {
+                        target.classList.remove('drop-target', 'drop-target-left', 'drop-target-right', 'drop-target-center');
+                        const row = target.closest('.dashboard-row');
+                        if (row) row.classList.remove('drop-target-row-center');
+                        
+                        const i = state.widgets.findIndex(x => x.id === w.id);
+                        const j = state.widgets.findIndex(x => x.id === target.dataset.id);
+                        
+                        if (i !== -1 && j !== -1) {
+                            if (region === 'center') {
+                                // Swap and make the dragged widget full width
+                                state.widgets[i].spanX = 2;
+                                [state.widgets[i], state.widgets[j]] = [state.widgets[j], state.widgets[i]];
+                            } else {
+                                // Side-by-side
+                                const draggedW = state.widgets.splice(i, 1)[0];
+                                draggedW.spanX = 1;
+                                
+                                const newJ = state.widgets.findIndex(x => x.id === target.dataset.id);
+                                state.widgets[newJ].spanX = 1;
+                                
+                                if (region === 'left') {
+                                    state.widgets.splice(newJ, 0, draggedW);
+                                } else {
+                                    state.widgets.splice(newJ + 1, 0, draggedW);
+                                }
+                            }
+                            saveState();
+                            renderDashboard();
+                            return;
+                        }
+                    }
+                    // No valid target: snap back
+                    widgetEl.classList.remove('is-dragging');
+                    widgetEl.style.transform = '';
+                };
+                
+                document.addEventListener('pointermove', onDragMove);
+                document.addEventListener('pointerup', onDragEnd);
+                document.addEventListener('pointercancel', onDragEnd);
+            };
+            
             widgetEl.addEventListener('pointerdown', (e) => {
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                if (e.target.closest('.resize-handle')) return;
                 pStartY = e.clientY;
                 pStartX = e.clientX;
                 hasMoved = false;
+                suppressClick = false;
+                clearPress();
+                pressTimer = setTimeout(() => {
+                    pressTimer = null;
+                    if (!hasMoved) startDrag(pStartX, pStartY);
+                }, LONG_PRESS_MS);
             });
             
             widgetEl.addEventListener('pointermove', (e) => {
+                if (dragging) return;
                 if (Math.abs(e.clientY - pStartY) > 8 || Math.abs(e.clientX - pStartX) > 8) {
                     hasMoved = true;
+                    clearPress();
                 }
             });
             
+            widgetEl.addEventListener('pointerup', clearPress);
+            widgetEl.addEventListener('pointercancel', clearPress);
+            
+            // Block native scrolling, long-press menus & image dragging while reordering
+            widgetEl.addEventListener('touchmove', (e) => {
+                if (dragging) e.preventDefault();
+            }, { passive: false });
+            widgetEl.addEventListener('contextmenu', (e) => e.preventDefault());
+            
             widgetEl.addEventListener('click', (e) => {
+                if (suppressClick) { suppressClick = false; e.stopPropagation(); e.preventDefault(); return; }
                 if (hasMoved) return; // User was scrolling
                 if (e.target.closest('.resize-handle') || e.target.closest('.widget-more')) return;
                 openPage(`page-${w.id}`);
-            });
+            }, true);
             
             // Adaptive proportional resize logic
             const handle = clone.querySelector('.resize-handle');
