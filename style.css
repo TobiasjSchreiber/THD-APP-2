@@ -210,7 +210,7 @@ h3 {
 
 /* Rich Vibrant 2-Color Aurora Gradients (45deg: Bottom-Left to Top-Right, No Borders) */
 .widget[data-id="schedule"] {
-    background: linear-gradient(45deg, #f46a3b 0%, #25a28f 100%);
+    background: linear-gradient(45deg, #87044b 0%, #f68164 100%);
     border: none;
 }
 
@@ -225,7 +225,7 @@ h3 {
 }
 
 .widget[data-id="events"] {
-    background: linear-gradient(45deg, #87044b 0%, #f68164 100%);
+    background: linear-gradient(45deg, #5B146f 0%, #ff009c 100%);
     border: none;
 }
 
