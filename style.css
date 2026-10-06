@@ -210,22 +210,22 @@ h3 {
 
 /* Rich Vibrant 2-Color Aurora Gradients (45deg: Bottom-Left to Top-Right, No Borders) */
 .widget[data-id="schedule"] {
-    background: linear-gradient(45deg, #d96b52 0%, #22807c 100%);
+    background: linear-gradient(45deg, #f46a3b 0%, #25a28f 100%);
     border: none;
 }
 
 .widget[data-id="parking"] {
-    background: linear-gradient(45deg, #00AFB9 0%, #0081A7 100%);
+    background: linear-gradient(45deg, #00c1bf 0%, #008da1 100%);
     border: none;
 }
 
 .widget[data-id="mensa"] {
-    background: linear-gradient(45deg, #1e5b53 0%, #88d49e 100%);
+    background: linear-gradient(45deg, #096359 0%, #b8dabb 100%);
     border: none;
 }
 
 .widget[data-id="events"] {
-    background: linear-gradient(45deg, #a82471 0%, #ea7868 100%);
+    background: linear-gradient(45deg, #87044b 0%, #f68164 100%);
     border: none;
 }
 
@@ -2496,7 +2496,7 @@ input[type="text"]:focus {
 
 /* ===== Weather Widget ===== */
 .widget[data-id="weather"] {
-    background: linear-gradient(45deg, #2f5d8a 0%, #5fa8d3 100%);
+    background: linear-gradient(45deg, #005c8c 0%, #3ab4ca 100%);
     border: none;
 }
 .wx-icon {
@@ -2550,7 +2550,7 @@ input[type="text"]:focus {
     display: flex;
     align-items: center;
     gap: 16px;
-    background: linear-gradient(45deg, #2f5d8a 0%, #5fa8d3 100%);
+    background: linear-gradient(45deg, #005c8c 0%, #3ab4ca 100%);
     border-radius: var(--radius-md);
     padding: 18px;
 }
