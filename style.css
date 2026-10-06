@@ -1286,6 +1286,7 @@ input[type="text"]:focus {
 }
 
 .meal-sheet-image {
+    filter: brightness(1.15) contrast(1.15);
     max-width: 100%;
     max-height: 55dvh;
     border-radius: var(--radius-md);
@@ -2429,7 +2430,7 @@ input[type="text"]:focus {
     object-fit: cover;
     border-radius: var(--radius-lg);
     display: block;
-    filter: brightness(0.75);
+    filter: brightness(0.9) contrast(1.15);
 }
 
 .webcam-error-card {
@@ -2464,6 +2465,7 @@ input[type="text"]:focus {
 }
 
 .webcam-full-image {
+    filter: brightness(1.15) contrast(1.15);
     width: 100%;
     height: auto;
     display: block;
@@ -2856,6 +2858,7 @@ html.slide-right::view-transition-new(active-page-content) {
     overflow: hidden;
 }
 .mensa-widget-circle {
+    filter: brightness(1.15) contrast(1.15);
     width: 40px;
     height: 40px;
     border-radius: 50%;
