@@ -127,7 +127,8 @@ function renderWidget(content, d) {
         line5 = `<div class="wt-line"><span class="wt-bold">${nextRainHours} Std.</span></div>`;
     } else {
         line4Text = info.text;
-        line4Muted = 'heute';
+        line4Muted = '';
+        line5 = `<div class="wt-line" style="margin-left: 1.3em; margin-top: -2px;"><span class="wt-muted">heute</span></div>`;
     }
 
     content.innerHTML = `
@@ -137,7 +138,7 @@ function renderWidget(content, d) {
             <div class="wt-line"><span class="wt-muted">gefühlt</span><span class="wt-space"></span><span class="wt-bold">${r(cur.apparent_temperature)}°</span></div>
             <div class="wt-line wt-icon-line">
                 <div class="wt-icon-wrap">${iconFor(info.type, cur.is_day === 1)}</div>
-                <span class="wt-bold">${line4Text}</span><span class="wt-space"></span><span class="wt-muted">${line4Muted}</span>
+                <span class="wt-bold" style="white-space: normal; line-height: 1.15;">${line4Text}</span>${line4Muted ? `<span class="wt-space"></span><span class="wt-muted">${line4Muted}</span>` : ''}
             </div>
             ${line5}
         </div>
