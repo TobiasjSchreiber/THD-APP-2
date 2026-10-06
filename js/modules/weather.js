@@ -127,8 +127,7 @@ function renderWidget(content, d) {
         line5 = `<div class="wt-line"><span class="wt-bold">${nextRainHours} Std.</span></div>`;
     } else {
         line4Text = info.text;
-        line4Muted = '';
-        line5 = `<div class="wt-line" style="margin-left: 1.3em; margin-top: -2px;"><span class="wt-muted">heute</span></div>`;
+        line4Muted = 'heute';
     }
 
     content.innerHTML = `
@@ -136,9 +135,12 @@ function renderWidget(content, d) {
             <div class="wt-line"><span class="wt-bold">${r(cur.temperature_2m)}°</span><span class="wt-space"></span><span class="wt-muted">jetzt</span></div>
             <div class="wt-line"><span class="wt-muted">in</span><span class="wt-space"></span><span class="wt-bold">Deggendorf</span></div>
             <div class="wt-line"><span class="wt-muted">gefühlt</span><span class="wt-space"></span><span class="wt-bold">${r(cur.apparent_temperature)}°</span></div>
-            <div class="wt-line wt-icon-line">
-                <div class="wt-icon-wrap">${iconFor(info.type, cur.is_day === 1)}</div>
-                <span class="wt-bold" style="white-space: normal; line-height: 1.15;">${line4Text}</span>${line4Muted ? `<span class="wt-space"></span><span class="wt-muted">${line4Muted}</span>` : ''}
+            <div class="wt-line wt-icon-line" style="align-items: flex-start; margin-top: 1px;">
+                <div class="wt-icon-wrap" style="flex-shrink: 0; margin-top: 2px;">${iconFor(info.type, cur.is_day === 1)}</div>
+                <div style="display: flex; flex-direction: column; min-width: 0;">
+                    <span class="wt-bold" style="white-space: normal; line-height: 1.1; overflow-wrap: anywhere;">${line4Text}</span>
+                    <span class="wt-muted" style="margin-top: 1px;">${line4Muted}</span>
+                </div>
             </div>
             ${line5}
         </div>
