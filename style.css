@@ -1,9 +1,9 @@
 :root {
-    --bg-color: #000000;
-    --surface-color: #121212;
-    --surface-hover: #1e1e1e;
+    --bg-color: transparent;
+    --surface-color: rgba(0, 0, 0, 0.5);
+    --surface-hover: rgba(0, 0, 0, 0.75);
     --text-main: #ffffff;
-    --text-muted: #888888;
+    --text-muted: #d4d4d4;
     --accent: #ffffff;
     --radius-lg: 32px;
     --radius-md: 18px;
@@ -36,7 +36,7 @@ html, body {
     left: 0;
     overscroll-behavior: none;
     -webkit-overflow-scrolling: auto;
-    background-color: var(--bg-color);
+    background: transparent;
     color: var(--text-main);
     font-family: system-ui, -apple-system, sans-serif;
     user-select: none;
@@ -60,7 +60,7 @@ html, body {
     width: 100%;
     height: 100%;
     height: 100dvh;
-    background-color: var(--bg-color);
+    background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     display: flex;
     flex-direction: column;
     transform: translateX(100%);
@@ -76,7 +76,8 @@ html, body {
 }
 
 #page-dashboard {
-    transform: translateX(0);
+    background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
+    transition: visibility 0s linear 0s;
     z-index: 15;
     overflow: hidden;
     touch-action: pan-y;
@@ -84,9 +85,26 @@ html, body {
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
 #page-dashboard:not(.active) {
-    transform: translateX(-30%);
+    visibility: hidden;
+    transition: visibility 0s linear 0.3s;
+    pointer-events: none;
 }
+
+#page-dashboard header,
+#page-dashboard .widget {
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+#page-dashboard:not(.active) header,
+#page-dashboard:not(.active) .widget {
+    opacity: 0;
+    transform: scale(0.9);
+}
+
 
 #page-dashboard header {
     padding: 48px 16px 24px;
@@ -190,9 +208,11 @@ h3 {
 
 /* Widgets */
 .widget {
-    background-color: var(--surface-color);
-    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: none;
+    border-radius: var(--radius-lg);
     padding: 14px 22px;
     display: flex;
     flex-direction: column;
@@ -204,30 +224,14 @@ h3 {
     width: 100%;
     box-sizing: border-box;
     color: #ffffff;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: none;
+    transition: transform 0.15s ease;
 }
 
 /* Rich Vibrant 2-Color Aurora Gradients (45deg: Bottom-Left to Top-Right, No Borders) */
-.widget[data-id="schedule"] {
-    background: linear-gradient(45deg, #87044b 0%, #f68164 100%);
-    border: none;
-}
 
-.widget[data-id="parking"] {
-    background: linear-gradient(45deg, #00c1bf 0%, #008da1 100%);
-    border: none;
-}
 
-.widget[data-id="mensa"] {
-    background: linear-gradient(45deg, #096359 0%, #b8dabb 100%);
-    border: none;
-}
 
-.widget[data-id="events"] {
-    background: linear-gradient(45deg, #5B146f 0%, #ff009c 100%);
-    border: none;
-}
 
 /* Common Widget Internal Elements with Crisp White Contrast */
 .widget .widget-title {
@@ -367,11 +371,11 @@ h3 {
 }
 
 .widget .widget-content {
-    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 
 .widget .widget-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.18);
 }
 
 .widget .resize-handle::after {
@@ -432,7 +436,7 @@ h3 {
     display: flex;
     align-items: center;
     gap: 3px;
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     padding: 2px;
     border-radius: 999px;
 }
@@ -629,7 +633,7 @@ h3 {
 
 .widget.is-resizing {
     opacity: 1;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: none;
     z-index: 50;
     transition: none;
 }
@@ -689,7 +693,6 @@ h3 {
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-md);
-    border-bottom: 1px solid var(--surface-hover);
     touch-action: pan-y;
 }
 .setting-item:last-child {
@@ -729,11 +732,11 @@ h3 {
     border-radius: 50%;
 }
 input:checked + .slider {
-    background-color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.3);
 }
 input:checked + .slider:before {
     transform: translateX(20px);
-    background-color: var(--bg-color);
+    background: #ffffff;
 }
 
 /* Input & Button */
@@ -756,9 +759,9 @@ input[type="text"]:focus {
     width: 100%;
     padding: var(--spacing-md);
     border-radius: 22px;
-    border: none;
-    background: var(--text-main);
-    color: var(--bg-color);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4);
+    color: #ffffff;
     font: var(--font-title);
     font-size: 16px;
     cursor: pointer;
@@ -1014,7 +1017,7 @@ input[type="text"]:focus {
     min-width: 44px;
     padding: 8px 4px;
     border-radius: var(--radius-md);
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     border: none;
     color: var(--text-muted);
     display: flex;
@@ -1228,7 +1231,7 @@ input[type="text"]:focus {
     flex-shrink: 0;
     overflow: hidden;
     position: relative;
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .meal-card-thumb-shimmer {
@@ -1246,7 +1249,7 @@ input[type="text"]:focus {
     border-radius: 12px;
     object-fit: cover;
     flex-shrink: 0;
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     display: block;
     position: relative;
     z-index: 1;
@@ -1353,7 +1356,7 @@ input[type="text"]:focus {
 }
 
 .diet-badge.neutral {
-    background: #1a1a1a;
+    background: rgba(0, 0, 0, 0.5);
     color: #b0b0b0;
 }
 
@@ -1419,7 +1422,7 @@ input[type="text"]:focus {
 }
 
 .meal-price-box {
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     border-radius: var(--radius-md);
     padding: 12px 6px;
     display: flex;
@@ -1430,7 +1433,7 @@ input[type="text"]:focus {
 }
 
 .meal-price-box.primary {
-    background: #222222;
+    background: rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
@@ -1473,7 +1476,7 @@ input[type="text"]:focus {
     font-weight: 500;
     padding: 5px 10px;
     border-radius: 999px;
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     color: #d4d4d4;
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -1513,6 +1516,7 @@ input[type="text"]:focus {
     color: var(--text-main);
     border: none;
     cursor: pointer;
+    margin: 0;
     transition: background 0.15s, transform 0.1s;
     position: relative;
 }
@@ -1585,7 +1589,7 @@ input[type="text"]:focus {
 
 /* Mensa Opening Hours */
 .mensa-hours-pill-bar {
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     border: none;
     border-radius: var(--radius-md);
     padding: 10px 14px;
@@ -1598,7 +1602,7 @@ input[type="text"]:focus {
 }
 
 .mensa-hours-pill-bar:active {
-    background: #222222;
+    background: rgba(0, 0, 0, 0.5);
     transform: scale(0.99);
 }
 
@@ -1653,7 +1657,7 @@ input[type="text"]:focus {
 }
 
 .hours-live-card {
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     border-radius: var(--radius-md);
     padding: 14px 22px;
     margin-bottom: 14px;
@@ -1692,7 +1696,7 @@ input[type="text"]:focus {
 }
 
 .hours-card {
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     border-radius: var(--radius-md);
     padding: 14px 22px;
     display: flex;
@@ -1727,7 +1731,7 @@ input[type="text"]:focus {
     text-transform: uppercase;
     padding: 2px 7px;
     border-radius: 999px;
-    background: #252525;
+    background: rgba(0, 0, 0, 0.4);
     color: var(--text-muted);
     letter-spacing: 0.3px;
 }
@@ -1758,7 +1762,7 @@ input[type="text"]:focus {
 }
 
 .filter-group {
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     border-radius: var(--radius-md);
     overflow: hidden;
     margin-bottom: 12px;
@@ -1776,7 +1780,7 @@ input[type="text"]:focus {
 }
 
 .filter-toggle-list {
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     border-radius: var(--radius-md);
     overflow: hidden;
     max-height: 48dvh;
@@ -1808,7 +1812,7 @@ input[type="text"]:focus {
 }
 
 .filter-reset-btn {
-    background: #1c1c1c;
+    background: rgba(0, 0, 0, 0.4);
     color: var(--text-muted);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-md);
@@ -1824,7 +1828,7 @@ input[type="text"]:focus {
 }
 
 .filter-reset-btn:active {
-    background: #282828;
+    background: rgba(0, 0, 0, 0.4);
     color: #ffffff;
 }
 
@@ -2013,7 +2017,7 @@ input[type="text"]:focus {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     opacity: 1;
@@ -2027,7 +2031,7 @@ input[type="text"]:focus {
 .sheet-container {
     position: relative;
     width: 100%;
-    background: #141414;
+    background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-top: 1px solid rgba(255, 255, 255, 0.15);
     border-top-left-radius: 28px;
     border-top-right-radius: 28px;
     padding: 12px 18px calc(28px + env(safe-area-inset-bottom, 20px));
@@ -2098,7 +2102,7 @@ input[type="text"]:focus {
 }
 
 .sheet-quick-btn {
-    background: #202020;
+    background: rgba(0, 0, 0, 0.4);
     border: none;
     color: var(--text-main);
     padding: 10px 4px;
@@ -2120,7 +2124,7 @@ input[type="text"]:focus {
 }
 
 .sheet-week-section {
-    background: #1c1c1c;
+    background: rgba(0, 0, 0, 0.4);
     border-radius: var(--radius-md);
     padding: 12px;
     display: flex;
@@ -2145,7 +2149,7 @@ input[type="text"]:focus {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: #222222;
+    background: rgba(0, 0, 0, 0.5);
     border: none;
     color: var(--text-main);
     padding: 14px;
@@ -2157,7 +2161,7 @@ input[type="text"]:focus {
 }
 
 .sheet-calendar-btn:active {
-    background: #2c2c2c;
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .sheet-calendar-btn svg {
@@ -2188,7 +2192,7 @@ input[type="text"]:focus {
 }
 
 .lecture-info-card {
-    background: #1c1c1c;
+    background: rgba(0, 0, 0, 0.4);
     border: none;
     border-radius: var(--radius-md);
     padding: 10px 12px;
@@ -2216,7 +2220,7 @@ input[type="text"]:focus {
 }
 
 .campus-map-section {
-    background: #181818;
+    background: rgba(0, 0, 0, 0.4);
     border: none;
     border-radius: 18px;
     padding: 12px 14px 14px;
@@ -2315,7 +2319,7 @@ input[type="text"]:focus {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.15s;
-    background: #222222;
+    background: rgba(0, 0, 0, 0.5);
     color: #ffffff;
 }
 
@@ -2350,7 +2354,7 @@ input[type="text"]:focus {
     padding: 0;
     position: relative;
     overflow: hidden;
-    background: #000000;
+    
 }
 
 .widget[data-id="webcam"] .widget-header {
@@ -2497,10 +2501,6 @@ input[type="text"]:focus {
 
 
 /* ===== Weather Widget ===== */
-.widget[data-id="weather"] {
-    background: linear-gradient(45deg, #005c8c 0%, #3ab4ca 100%);
-    border: none;
-}
 .wx-icon {
     display: block;
     flex-shrink: 0;
@@ -2877,3 +2877,15 @@ html.slide-right::view-transition-new(active-page-content) {
         display: none !important;
     }
 }
+
+/* Background image settings */
+body {
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-color: #000000;
+}
+body.bg-1 { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img/bg1.jpg'); }
+body.bg-2 { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img/bg2.jpg'); }
+body.bg-3 { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img/bg3.jpg'); }
+body.bg-none { background-image: none; background-color: #000000; }

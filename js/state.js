@@ -32,6 +32,7 @@ export const state = {
     gridRowWeights: [1.35, 1.15, 1.2],
     gridColWeights: [1.0, 1.0],
     studyGroup: 'MT-MP5',
+    backgroundImage: 'bg-1',
     
     // Subpage & Navigation Dates
     currentScheduleDate: new Date(),
@@ -75,6 +76,8 @@ export function loadSavedState() {
         const savedCols = localStorage.getItem('thd2_col_weights_v6');
         if (savedCols) state.gridColWeights = JSON.parse(savedCols);
         
+        const savedBg = localStorage.getItem('thd_bg_image');
+        if (savedBg) state.backgroundImage = savedBg;
         const savedGroup = localStorage.getItem('thd_studygroup');
         if (savedGroup) state.studyGroup = savedGroup;
         
@@ -96,6 +99,7 @@ export function saveState() {
         localStorage.setItem('thd2_row_weights_v6', JSON.stringify(state.gridRowWeights));
         localStorage.setItem('thd2_col_weights_v6', JSON.stringify(state.gridColWeights));
         localStorage.setItem('thd_studygroup', state.studyGroup);
+        localStorage.setItem('thd_bg_image', state.backgroundImage);
         localStorage.setItem('thd_mensa_filters', JSON.stringify(state.mensaFilters));
         localStorage.setItem('thd_hidden_lectures', JSON.stringify(state.hiddenLectures));
     } catch (e) {

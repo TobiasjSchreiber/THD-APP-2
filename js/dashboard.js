@@ -429,6 +429,27 @@ export function renderSettings() {
     
     const studyInput = document.getElementById('input-studygroup');
     if (studyInput) studyInput.value = state.studyGroup;
+    
+    applyBackground();
+    
+    document.querySelectorAll('.bg-option').forEach(el => {
+        const bg = el.dataset.bg;
+        if (bg === state.backgroundImage || (bg === 'bg-custom' && state.backgroundImage && state.backgroundImage.startsWith('data:'))) {
+            el.style.borderColor = '#fff';
+        } else {
+            el.style.borderColor = 'transparent';
+        }
+    });
+}
+
+export function applyBackground() {
+    if (state.backgroundImage && state.backgroundImage.startsWith('data:')) {
+        document.body.className = '';
+        document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${state.backgroundImage})`;
+    } else {
+        document.body.style.backgroundImage = '';
+        document.body.className = state.backgroundImage || 'bg-1';
+    }
 }
 
 export function setupSettingsListeners() {
@@ -442,6 +463,59 @@ export function setupSettingsListeners() {
                 openPage('page-dashboard');
                 if (fetchDataCallback) fetchDataCallback();
             }
+        });
+    }
+
+    document.querySelectorAll('.bg-option').forEach(el => {
+        el.addEventListener('click', (e) => {
+            if (e.currentTarget.dataset.bg === 'bg-custom') return;
+            state.backgroundImage = e.currentTarget.dataset.bg;
+            saveState();
+            applyBackground();
+            renderSettings();
+        });
+    });
+
+    const bgUploadInput = document.getElementById('bg-upload-input');
+    if (bgUploadInput) {
+        bgUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const MAX_WIDTH = 1080;
+                    const MAX_HEIGHT = 1080;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    
+                    state.backgroundImage = dataUrl;
+                    saveState();
+                    applyBackground();
+                    renderSettings();
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
         });
     }
 
