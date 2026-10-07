@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thd-app2-v152';
+const CACHE_NAME = 'thd-app2-v153';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
