@@ -265,7 +265,7 @@ export function renderScheduleWidget() {
                 const passed = now - e.start;
                 const progress = Math.max(0, Math.min(100, (passed / totalDuration) * 100));
                 
-                styleStr = ` style="background: linear-gradient(90deg, rgba(255,255,255,0.25) ${progress}%, var(--surface-elevated) ${progress}%);"`;
+                styleStr = ` style="background: linear-gradient(90deg, rgba(255,255,255,0.25) ${progress}%, var(--progress-unfilled) ${progress}%);"`;
             } else {
                 // Not yet started
                 itemClass += ' is-next';
@@ -335,7 +335,7 @@ export function renderScheduleDetail() {
             const totalDuration = e.end - e.start;
             const passed = now - e.start;
             const progress = Math.max(0, Math.min(100, (passed / totalDuration) * 100));
-            styleStr = ` style="background: linear-gradient(90deg, rgba(255,255,255,0.25) ${progress}%, var(--surface-elevated) ${progress}%);"`;
+            styleStr = ` style="background: linear-gradient(90deg, rgba(255,255,255,0.25) ${progress}%, var(--progress-unfilled) ${progress}%);"`;
         }
         
         dHtml += `

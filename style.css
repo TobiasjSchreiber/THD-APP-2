@@ -2,6 +2,7 @@
     --bg-color: transparent;
     --surface-color: rgba(0, 0, 0, 0.5);
     --surface-elevated: rgba(0, 0, 0, 0.4);
+    --progress-unfilled: var(--surface-elevated);
     --surface-hover: rgba(0, 0, 0, 0.75);
     --text-main: #ffffff;
     --text-muted: #d4d4d4;
@@ -2895,6 +2896,10 @@ body.bg-none, body.bg-bunt {
     --surface-color: #141414;
     --surface-elevated: #1c1c1c;
     --surface-hover: #2a2a2a;
+}
+
+body.bg-none {
+    --progress-unfilled: #000000;
 }
 
 /* OLED & Bunt Theme Overrides */
