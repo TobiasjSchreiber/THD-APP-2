@@ -84,7 +84,7 @@ async function fetchWeather() {
     const { lat, lon } = CONFIG.weatherLocation;
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
         '&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,is_day,wind_speed_10m' +
-        '&hourly=temperature_2m,weather_code,precipitation_probability,is_day' +
+        '&hourly=temperature_2m,weather_code,precipitation_probability,is_day,wind_speed_10m' +
         '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max' +
         '&timezone=Europe%2FBerlin&forecast_days=7';
     const res = await fetch(url);
@@ -153,19 +153,63 @@ function renderDetail(detail, d) {
 
     // Next 24 hours
     const startIdx = Math.max(0, d.hourly.time.findIndex(t => new Date(t).getTime() + 3600000 > now));
-    let hours = '';
-    for (let i = startIdx; i < Math.min(startIdx + 24, d.hourly.time.length); i++) {
+    const numHours = 24;
+    const endIdx = Math.min(startIdx + numHours, d.hourly.time.length);
+    const temps = d.hourly.temperature_2m.slice(startIdx, endIdx);
+    const minTemp = Math.min(...temps);
+    const maxTemp = Math.max(...temps);
+    
+    const itemWidth = 64; // px
+    const graphHeight = 30; // px
+    const topPadding = 24; // px
+    const svgWidth = temps.length * itemWidth;
+    const svgHeight = graphHeight + topPadding + 6;
+    
+    const range = Math.max(maxTemp - minTemp, 1);
+    
+    let pathD = "";
+    let points = [];
+    
+    for (let i = 0; i < temps.length; i++) {
+        const x = i * itemWidth + (itemWidth / 2);
+        const y = topPadding + graphHeight - ((temps[i] - minTemp) / range) * graphHeight;
+        points.push({x, y, t: temps[i]});
+        if (i === 0) {
+            pathD += `M ${x} ${y} `;
+        } else {
+           const prevX = points[i-1].x;
+           const prevY = points[i-1].y;
+           const cpX = (prevX + x) / 2;
+           pathD += `C ${cpX} ${prevY}, ${cpX} ${y}, ${x} ${y} `;
+        }
+    }
+    
+    let svgGraph = `<svg width="${svgWidth}" height="${svgHeight}" style="position:absolute; top:0; left:0; z-index:0; pointer-events:none; overflow:visible;" viewBox="0 0 ${svgWidth} ${svgHeight}">
+        <path d="${pathD}" fill="none" stroke="#DCE989" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+        
+    for (let p of points) {
+        svgGraph += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="#ffffff" stroke="#DCE989" stroke-width="1.5" />`;
+        svgGraph += `<text x="${p.x}" y="${p.y - 12}" fill="#ffffff" font-size="14" font-weight="600" text-anchor="middle">${r(p.t)}°</text>`;
+    }
+    svgGraph += `</svg>`;
+    
+    let hours = `<div style="position:relative; width:${svgWidth}px; display:flex;">
+        ${svgGraph}
+        <div style="display:flex; width:100%; padding-top:${svgHeight + 6}px;">`;
+    
+    for (let i = startIdx; i < endIdx; i++) {
         const t = new Date(d.hourly.time[i]);
         const hi = describe(d.hourly.weather_code[i]);
-        const p = d.hourly.precipitation_probability[i];
+        const wind = d.hourly.wind_speed_10m ? d.hourly.wind_speed_10m[i] : 0;
+        
         hours += `
-            <div class="weather-hour">
-                <span class="weather-hour-time">${i === startIdx ? 'Jetzt' : t.getHours() + ' Uhr'}</span>
+            <div style="width:${itemWidth}px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:4px; z-index:1;">
                 ${iconFor(hi.type, d.hourly.is_day[i] === 1)}
-                <span class="weather-hour-temp">${r(d.hourly.temperature_2m[i])}°</span>
-                <span class="weather-hour-rain">${p >= 10 ? p + '%' : '&nbsp;'}</span>
+                <span style="font-size:10px; color:var(--text-muted, #a0a0a0); margin-top:2px;">${wind.toFixed(1).replace('.', ',')} km/h</span>
+                <span style="font-size:11px; color:#ffffff; font-weight:500;">${i === startIdx ? 'Jetzt' : String(t.getHours()).padStart(2, '0') + ':00'}</span>
             </div>`;
     }
+    hours += `</div></div>`;
 
     // 7 days
     const dayNames = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
@@ -195,9 +239,11 @@ function renderDetail(detail, d) {
                 <div class="card-item"><span class="sub-text">Wind</span><span class="list-title">${r(cur.wind_speed_10m)} km/h</span></div>
                 <div class="card-item"><span class="sub-text">Luftfeuchte</span><span class="list-title">${r(cur.relative_humidity_2m)} %</span></div>
             </div>
-            <div class="weather-section-title">Stündlich</div>
-            <div class="weather-hourly">${hours}</div>
-            <div class="weather-section-title">7 Tage</div>
+            <div class="card-item" style="padding: 16px 0; overflow: hidden; margin-top: 6px;">
+                <div style="font-size: 13px; font-weight: 600; color: #ffffff; padding: 0 16px 12px 16px; opacity: 0.9;">24 Stunden-Vorhersage</div>
+                <div class="weather-hourly" style="padding: 0 16px;">${hours}</div>
+            </div>
+            <div class="weather-section-title" style="margin-top: 16px;">7 Tage</div>
             <div class="card-item weather-daily">${days}</div>
             <p class="weather-source">Wetterdaten: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0)</p>
         </div>

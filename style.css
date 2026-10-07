@@ -2592,6 +2592,7 @@ input[type="text"]:focus {
     scrollbar-width: none;
 }
 .weather-hourly::-webkit-scrollbar { display: none; }
+.weather-hourly .wx-icon { width: 24px; height: 24px; }
 .weather-hour {
     flex-shrink: 0;
     display: flex;
