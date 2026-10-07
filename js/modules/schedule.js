@@ -253,14 +253,27 @@ export function renderScheduleWidget() {
         const startT = e.start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
         
         let itemClass = 'list-item schedule-widget-item';
+        let styleStr = '';
+        const isActuallyRunning = (now >= e.start && now < e.end);
+
         if (allPast || (currentTargetIdx !== -1 && idx < currentTargetIdx)) {
             itemClass += ' is-past';
         } else if (idx === currentTargetIdx) {
-            itemClass += ' is-current';
+            if (isActuallyRunning) {
+                itemClass += ' is-current';
+                const totalDuration = e.end - e.start;
+                const passed = now - e.start;
+                const progress = Math.max(0, Math.min(100, (passed / totalDuration) * 100));
+                
+                styleStr = ` style="background: linear-gradient(90deg, rgba(255,255,255,0.25) ${progress}%, rgba(255,255,255,0.05) ${progress}%);"`;
+            } else {
+                // Not yet started
+                itemClass += ' is-next';
+            }
         }
         
         return `
-            <div class="${itemClass}" data-schedule-index="${idx}">
+            <div class="${itemClass}" data-schedule-index="${idx}"${styleStr}>
                 <span class="list-title">${e.summary}</span>
                 <span class="schedule-widget-time">${startT}</span>
             </div>
@@ -317,8 +330,16 @@ export function renderScheduleDetail() {
         const timeStr = endT ? `${startT} - ${endT}` : startT;
         const isCurrent = isToday && (now >= e.start && now < e.end);
         
+        let styleStr = '';
+        if (isCurrent) {
+            const totalDuration = e.end - e.start;
+            const passed = now - e.start;
+            const progress = Math.max(0, Math.min(100, (passed / totalDuration) * 100));
+            styleStr = ` style="background: linear-gradient(90deg, rgba(255,255,255,0.25) ${progress}%, rgba(255,255,255,0.08) ${progress}%);"`;
+        }
+        
         dHtml += `
-            <div class="card-item ${isCurrent ? 'is-current' : ''} schedule-card-interactive" data-schedule-index="${idx}">
+            <div class="card-item ${isCurrent ? 'is-current' : ''} schedule-card-interactive" data-schedule-index="${idx}"${styleStr}>
                 <div class="card-item-header">
                     <span class="time-tag">${isCurrent ? '<span class="now-pill">JETZT</span>' : ''}${timeStr}</span>
                     ${e.location ? `<span class="room-tag">Raum ${e.location}</span>` : ''}
