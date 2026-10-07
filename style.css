@@ -1,6 +1,7 @@
 :root {
     --bg-color: transparent;
     --surface-color: rgba(0, 0, 0, 0.5);
+    --surface-elevated: rgba(0, 0, 0, 0.4);
     --surface-hover: rgba(0, 0, 0, 0.75);
     --text-main: #ffffff;
     --text-muted: #d4d4d4;
@@ -436,7 +437,7 @@ h3 {
     display: flex;
     align-items: center;
     gap: 3px;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     padding: 2px;
     border-radius: 999px;
 }
@@ -760,7 +761,7 @@ input[type="text"]:focus {
     padding: var(--spacing-md);
     border-radius: 22px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     color: #ffffff;
     font: var(--font-title);
     font-size: 16px;
@@ -1017,7 +1018,7 @@ input[type="text"]:focus {
     min-width: 44px;
     padding: 8px 4px;
     border-radius: var(--radius-md);
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border: none;
     color: var(--text-muted);
     display: flex;
@@ -1231,7 +1232,7 @@ input[type="text"]:focus {
     flex-shrink: 0;
     overflow: hidden;
     position: relative;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
 }
 
 .meal-card-thumb-shimmer {
@@ -1249,7 +1250,7 @@ input[type="text"]:focus {
     border-radius: 12px;
     object-fit: cover;
     flex-shrink: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     display: block;
     position: relative;
     z-index: 1;
@@ -1422,7 +1423,7 @@ input[type="text"]:focus {
 }
 
 .meal-price-box {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border-radius: var(--radius-md);
     padding: 12px 6px;
     display: flex;
@@ -1476,7 +1477,7 @@ input[type="text"]:focus {
     font-weight: 500;
     padding: 5px 10px;
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     color: #d4d4d4;
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -1589,7 +1590,7 @@ input[type="text"]:focus {
 
 /* Mensa Opening Hours */
 .mensa-hours-pill-bar {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border: none;
     border-radius: var(--radius-md);
     padding: 10px 14px;
@@ -1657,7 +1658,7 @@ input[type="text"]:focus {
 }
 
 .hours-live-card {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border-radius: var(--radius-md);
     padding: 14px 22px;
     margin-bottom: 14px;
@@ -1696,7 +1697,7 @@ input[type="text"]:focus {
 }
 
 .hours-card {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border-radius: var(--radius-md);
     padding: 14px 22px;
     display: flex;
@@ -1731,7 +1732,7 @@ input[type="text"]:focus {
     text-transform: uppercase;
     padding: 2px 7px;
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     color: var(--text-muted);
     letter-spacing: 0.3px;
 }
@@ -1762,7 +1763,7 @@ input[type="text"]:focus {
 }
 
 .filter-group {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border-radius: var(--radius-md);
     overflow: hidden;
     margin-bottom: 12px;
@@ -1780,7 +1781,7 @@ input[type="text"]:focus {
 }
 
 .filter-toggle-list {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border-radius: var(--radius-md);
     overflow: hidden;
     max-height: 48dvh;
@@ -1812,7 +1813,7 @@ input[type="text"]:focus {
 }
 
 .filter-reset-btn {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     color: var(--text-muted);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-md);
@@ -1828,7 +1829,7 @@ input[type="text"]:focus {
 }
 
 .filter-reset-btn:active {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     color: #ffffff;
 }
 
@@ -2102,7 +2103,7 @@ input[type="text"]:focus {
 }
 
 .sheet-quick-btn {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border: none;
     color: var(--text-main);
     padding: 10px 4px;
@@ -2124,7 +2125,7 @@ input[type="text"]:focus {
 }
 
 .sheet-week-section {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border-radius: var(--radius-md);
     padding: 12px;
     display: flex;
@@ -2161,7 +2162,7 @@ input[type="text"]:focus {
 }
 
 .sheet-calendar-btn:active {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
 }
 
 .sheet-calendar-btn svg {
@@ -2192,7 +2193,7 @@ input[type="text"]:focus {
 }
 
 .lecture-info-card {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border: none;
     border-radius: var(--radius-md);
     padding: 10px 12px;
@@ -2220,7 +2221,7 @@ input[type="text"]:focus {
 }
 
 .campus-map-section {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--surface-elevated);
     border: none;
     border-radius: 18px;
     padding: 12px 14px 14px;
@@ -2888,4 +2889,32 @@ body {
 body.bg-1 { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img/bg1.jpg'); }
 body.bg-2 { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img/bg2.jpg'); }
 body.bg-3 { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('img/bg3.jpg'); }
-body.bg-none { background-image: none; background-color: #000000; }
+body.bg-none, body.bg-bunt { 
+    background-image: none; 
+    background-color: #000000; 
+    --bg-color: #000000;
+    --surface-color: #141414;
+    --surface-elevated: #1c1c1c;
+    --surface-hover: #2a2a2a;
+}
+
+/* OLED & Bunt Theme Overrides */
+body.bg-none .page, body.bg-bunt .page {
+    background: #000000;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+body.bg-none .widget, body.bg-bunt .widget {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+}
+body.bg-none .widget {
+    background: #141414;
+}
+
+body.bg-bunt .widget[data-id="schedule"] { background: linear-gradient(45deg, #87044b 0%, #f68164 100%); }
+body.bg-bunt .widget[data-id="parking"] { background: linear-gradient(45deg, #00c1bf 0%, #008da1 100%); }
+body.bg-bunt .widget[data-id="mensa"] { background: linear-gradient(45deg, #096359 0%, #b8dabb 100%); }
+body.bg-bunt .widget[data-id="events"] { background: linear-gradient(45deg, #5B146f 0%, #ff009c 100%); }
+body.bg-bunt .widget[data-id="weather"] { background: linear-gradient(45deg, #005c8c 0%, #3ab4ca 100%); }
