@@ -435,9 +435,10 @@ export function renderSettings() {
     document.querySelectorAll('.bg-option').forEach(el => {
         const bg = el.dataset.bg;
         if (bg === state.backgroundImage || (bg === 'bg-custom' && state.backgroundImage && state.backgroundImage.startsWith('data:'))) {
-            el.style.borderColor = '#fff';
+            el.style.outline = '2px solid #fff';
+            el.style.outlineOffset = '2px';
         } else {
-            el.style.borderColor = 'transparent';
+            el.style.outline = 'none';
         }
     });
 }
