@@ -261,6 +261,10 @@ export function setupNavigationListeners() {
             if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                 const target = mutation.target;
                 const isOpen = target.classList.contains('open');
+                const wasOpen = mutation.oldValue ? mutation.oldValue.split(' ').includes('open') : false;
+                
+                if (isOpen === wasOpen) return; // Only care if 'open' state actually changed
+
                 if (isOpen) {
                     // Modal opened -> push modal state
                     if (!isInternalHistoryChange) {
@@ -279,7 +283,7 @@ export function setupNavigationListeners() {
     });
 
     document.querySelectorAll('.bottom-sheet').forEach(sheet => {
-        sheetObserver.observe(sheet, { attributes: true, attributeFilter: ['class'] });
+        sheetObserver.observe(sheet, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
     });
 
     // Universal popstate handler for Android system back button & browser back
