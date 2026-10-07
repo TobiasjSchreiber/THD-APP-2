@@ -95,13 +95,15 @@ html, body {
 
 #page-dashboard header,
 #page-dashboard .widget {
-    transition: opacity 0.45s;
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.45s;
     opacity: 1;
+    transform: translateX(0);
 }
 
 #page-dashboard:not(.active) header,
 #page-dashboard:not(.active) .widget {
     opacity: 0;
+    transform: translateX(-20vw);
 }
 
 
