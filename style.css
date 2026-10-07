@@ -86,6 +86,7 @@ html, body {
     overscroll-behavior: none;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
+    transform: translateX(0) !important;
 }
 
 #page-dashboard:not(.active) {
