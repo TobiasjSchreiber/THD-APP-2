@@ -123,8 +123,7 @@ function renderWidget(content, d) {
         line4Muted = 'jetzt';
     } else if (nextRainHours > 0) {
         line4Text = nextRainText;
-        line4Muted = 'in';
-        line5 = `<div class="wt-line"><span class="wt-bold">${nextRainHours} Std.</span></div>`;
+        line4Muted = `in ${nextRainHours} Std.`;
     } else {
         line4Text = info.text;
         line4Muted = 'heute';
@@ -135,14 +134,14 @@ function renderWidget(content, d) {
             <div class="wt-line"><span class="wt-bold">${r(cur.temperature_2m)}°</span><span class="wt-space"></span><span class="wt-muted">jetzt</span></div>
             <div class="wt-line"><span class="wt-muted">in</span><span class="wt-space"></span><span class="wt-bold">Deggendorf</span></div>
             <div class="wt-line"><span class="wt-muted">gefühlt</span><span class="wt-space"></span><span class="wt-bold">${r(cur.apparent_temperature)}°</span></div>
-            <div class="wt-line wt-icon-line" style="align-items: flex-start; margin-top: 1px;">
-                <div class="wt-icon-wrap" style="flex-shrink: 0; margin-top: 2px;">${iconFor(info.type, cur.is_day === 1)}</div>
-                <div style="display: flex; flex-direction: column; min-width: 0;">
-                    <span class="wt-bold" style="white-space: normal; line-height: 1.1; overflow-wrap: anywhere;">${line4Text}</span>
-                    <span class="wt-muted" style="margin-top: 1px;">${line4Muted}</span>
+            <div class="wt-line" style="justify-content: space-between; width: 100%; margin-top: 2px;">
+                <div style="display: flex; align-items: center; overflow: hidden; margin-right: 4px;">
+                    <span class="wt-bold" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1;">${line4Text}</span>
+                    <span class="wt-space"></span>
+                    <span class="wt-muted" style="white-space: nowrap; flex-shrink: 0;">${line4Muted}</span>
                 </div>
+                <div class="wt-icon-wrap" style="flex-shrink: 0; margin-left: auto; margin-right: 0;">${iconFor(info.type, cur.is_day === 1)}</div>
             </div>
-            ${line5}
         </div>
     `;
 }
