@@ -1,7 +1,9 @@
 {
   "name": "THD App 2",
   "short_name": "THD App 2",
-  "start_url": "./index.html",
+  "start_url": ".",
+  "id": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
