@@ -443,4 +443,11 @@ export function setupScheduleListeners() {
 
     const lectureModalBackdrop = document.getElementById('lecture-modal-backdrop');
     if (lectureModalBackdrop) lectureModalBackdrop.addEventListener('click', closeLectureDetailSheet);
+
+    // Automatically update the schedule every minute to keep progress bars and days current
+    setInterval(() => {
+        if (state.widgets.find(w => w.id === 'schedule' && w.enabled)) {
+            renderScheduleView();
+        }
+    }, 60000);
 }
