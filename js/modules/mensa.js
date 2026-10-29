@@ -287,11 +287,6 @@ export function openMealDetailSheet(meal) {
                     if (imgShimmer) imgShimmer.style.display = 'none';
                 };
             }
-        } else if (meal.imageUrl === undefined) {
-            imgBox.style.display = 'flex';
-            imgEl.src = '';
-            imgEl.style.display = 'none';
-            if (imgShimmer) imgShimmer.style.display = 'block';
         } else {
             imgBox.style.display = 'none';
             imgEl.src = '';
@@ -582,8 +577,6 @@ export async function loadMensaForDate(date) {
                         let thumbHtml = '';
                         if (m.imageUrl) {
                             thumbHtml = `<div class="meal-card-thumb-wrap" id="meal-thumb-wrap-${m._dishId}"><img src="${m.imageUrl}" class="meal-card-thumb loaded" alt="${m.name}" onerror="this.parentElement.remove()"></div>`;
-                        } else if (m.imageUrl === undefined) {
-                            thumbHtml = `<div class="meal-card-thumb-wrap" id="meal-thumb-wrap-${m._dishId}"><div class="shimmer-box meal-card-thumb-shimmer"></div></div>`;
                         }
                         
                         dHtml += `
@@ -808,34 +801,44 @@ function updateMensaImagesInDom(meals) {
     }
 
     meals.forEach((m) => {
-        const wrap = document.getElementById(`meal-thumb-wrap-${m._dishId}`);
-        if (!wrap) return;
+        let wrap = document.getElementById(`meal-thumb-wrap-${m._dishId}`);
         if (m.imageUrl) {
-            const existingImg = wrap.querySelector('img');
-            if (existingImg) {
-                if (existingImg.src !== m.imageUrl) existingImg.src = m.imageUrl;
-                return;
+            if (wrap) {
+                const existingImg = wrap.querySelector('img');
+                if (existingImg) {
+                    if (existingImg.src !== m.imageUrl) existingImg.src = m.imageUrl;
+                    return;
+                }
+            } else {
+                const cardBody = document.querySelector(`.meal-card-interactive[data-meal-id="${m._dishId}"] .meal-card-body`);
+                if (cardBody) {
+                    wrap = document.createElement('div');
+                    wrap.className = 'meal-card-thumb-wrap';
+                    wrap.id = `meal-thumb-wrap-${m._dishId}`;
+                    cardBody.prepend(wrap);
+                }
             }
-            const img = document.createElement('img');
-            img.className = 'meal-card-thumb loading-fade';
-            img.alt = m.name;
-            const finishLoad = () => {
-                img.classList.remove('loading-fade');
-                img.classList.add('loaded');
-                const shimmer = wrap.querySelector('.shimmer-box');
-                if (shimmer) shimmer.remove();
-            };
-            img.onload = finishLoad;
-            img.onerror = () => {
-                wrap.remove();
-            };
-            img.src = m.imageUrl;
-            wrap.appendChild(img);
-            if (img.complete && img.naturalWidth > 0) {
-                finishLoad();
+            if (wrap) {
+                const img = document.createElement('img');
+                img.className = 'meal-card-thumb loading-fade';
+                img.alt = m.name;
+                const finishLoad = () => {
+                    img.classList.remove('loading-fade');
+                    img.classList.add('loaded');
+                };
+                img.onload = finishLoad;
+                img.onerror = () => {
+                    wrap.remove();
+                };
+                img.src = m.imageUrl;
+                wrap.innerHTML = '';
+                wrap.appendChild(img);
+                if (img.complete && img.naturalWidth > 0) {
+                    finishLoad();
+                }
             }
         } else {
-            wrap.remove();
+            if (wrap) wrap.remove();
         }
     });
 
@@ -867,7 +870,7 @@ function updateMensaImagesInDom(meals) {
                                 if (imgShimmer) imgShimmer.style.display = 'none';
                             };
                         }
-                    } else if (currentMeal.imageUrl === null) {
+                    } else {
                         imgBox.style.display = 'none';
                         if (imgShimmer) imgShimmer.style.display = 'none';
                     }

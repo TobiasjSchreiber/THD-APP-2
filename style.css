@@ -1220,8 +1220,8 @@ input[type="text"]:focus {
 }
 
 .meal-card-body {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
+    display: flex;
+    flex-direction: row;
     gap: 14px;
     align-items: center;
     width: 100%;
@@ -1271,6 +1271,7 @@ input[type="text"]:focus {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    flex: 1;
     min-width: 0;
     gap: 6px;
 }
