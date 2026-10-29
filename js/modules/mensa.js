@@ -433,21 +433,40 @@ export async function loadMensaForDate(date) {
     
     const dateIso = formatDateIso(state.currentMensaDate);
     const cacheKey = `thd_cache_mensa_${dateIso}`;
+    const imgCacheKey = `thd_cache_mensa_images_${dateIso}`;
     
-    let hasValidCache = false;
-    const cachedStr = localStorage.getItem(cacheKey);
-    if (cachedStr) {
-        try {
-            const parsed = JSON.parse(cachedStr);
-            if (Date.now() - parsed.ts < 24 * 60 * 60 * 1000) {
-                state.mensaCache[dateIso] = parsed.data;
-                hasValidCache = true;
-            }
-        } catch(e) {}
+    // Check if meal images are cached in localStorage
+    if (!state.mensaImageCache) state.mensaImageCache = {};
+    if (!state.mensaImageCache[dateIso]) {
+        const cachedImgStr = localStorage.getItem(imgCacheKey);
+        if (cachedImgStr) {
+            try {
+                state.mensaImageCache[dateIso] = JSON.parse(cachedImgStr);
+            } catch(e) {}
+        }
     }
     
-    if (content && !hasValidCache) content.innerHTML = getMensaSkeleton(true);
-    if (detail && !hasValidCache) detail.innerHTML = getMensaSkeleton(false);
+    let hasCachedData = false;
+    // Check memory cache first, then localStorage (Stale-While-Revalidate)
+    if (state.mensaCache && state.mensaCache[dateIso] && state.mensaCache[dateIso].length > 0) {
+        hasCachedData = true;
+    } else {
+        const cachedStr = localStorage.getItem(cacheKey);
+        if (cachedStr) {
+            try {
+                const parsed = JSON.parse(cachedStr);
+                const rawMeals = parsed.data || parsed;
+                if (Array.isArray(rawMeals) && rawMeals.length > 0) {
+                    state.mensaCache[dateIso] = rawMeals;
+                    hasCachedData = true;
+                }
+            } catch(e) {}
+        }
+    }
+    
+    // Only show skeleton loaders if we have NO cached meals for this day
+    if (content && !hasCachedData) content.innerHTML = getMensaSkeleton(true);
+    if (detail && !hasCachedData) detail.innerHTML = getMensaSkeleton(false);
 
     const render = (mealsData) => {
         if (!mealsData || mealsData.length === 0) {
@@ -627,11 +646,11 @@ export async function loadMensaForDate(date) {
         }
     };
 
-    if (hasValidCache && state.mensaCache[dateIso]) {
+    if (hasCachedData && state.mensaCache[dateIso]) {
         render(state.mensaCache[dateIso]);
     }
 
-    // Always fetch in background to update cache and view
+    // Always fetch in background to update cache and view (Stale-While-Revalidate)
     fetch(`https://openmensa.org/api/v2/canteens/${CONFIG.openMensaCanteenId}/days/${dateIso}/meals`)
         .then(res => {
             if (res.ok) return res.json();
@@ -673,9 +692,12 @@ export async function loadMensaForDate(date) {
             state.mensaCache[dateIso] = meals;
             localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: meals }));
             render(meals);
+            fetchMensaImagesInBackground(dateIso, meals);
         })
         .catch(e => {
-            if (!hasValidCache) {
+            console.warn('Mensa API fetch failed:', e);
+            // Only overwrite if we had NO cached meals displayed
+            if (!hasCachedData) {
                 state.mensaCache[dateIso] = [];
                 render([]);
             }
@@ -690,6 +712,8 @@ async function fetchMensaImagesInBackground(dateIso, meals) {
             imageMap = await imgRes.json();
             if (!state.mensaImageCache) state.mensaImageCache = {};
             state.mensaImageCache[dateIso] = imageMap;
+            // Persist image map to localStorage so images are loaded immediately on reload
+            localStorage.setItem(`thd_cache_mensa_images_${dateIso}`, JSON.stringify(imageMap));
         }
     } catch(e) {
         // Silently ignore if offline

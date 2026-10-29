@@ -1,7 +1,7 @@
 // Navigation, Subpage Headers, Date Picker Sheet & Bounce Control
 import { state } from './state.js';
 import { isSameDay, formatDateIso, getRelativeDayString, getWeekDays } from './helpers.js';
-import { renderScheduleDetail } from './modules/schedule.js';
+import { renderScheduleDetail, renderScheduleWidget } from './modules/schedule.js';
 import { loadMensaForDate, updateMensaHeaderStatus } from './modules/mensa.js';
 
 let isInternalHistoryChange = false;
@@ -16,8 +16,22 @@ export function openPage(id, pushHistory = true) {
     pages.forEach(p => p.classList.remove('active'));
     const target = document.getElementById(id);
     if (target) target.classList.add('active');
-    if (id === 'page-mensa') {
+
+    // When opening Schedule or Mensa, ensure the displayed date is reset to today if from another day
+    const now = new Date();
+    if (id === 'page-schedule') {
+        if (!isSameDay(state.currentScheduleDate, now)) {
+            state.currentScheduleDate = new Date();
+            updateSubpageHeader('schedule');
+            renderScheduleDetail();
+        }
+    } else if (id === 'page-mensa') {
         updateMensaHeaderStatus();
+        if (!isSameDay(state.currentMensaDate, now)) {
+            state.currentMensaDate = new Date();
+            updateSubpageHeader('mensa');
+            loadMensaForDate(state.currentMensaDate);
+        }
     }
 
     if (pushHistory && id !== 'page-dashboard') {
@@ -28,6 +42,41 @@ export function openPage(id, pushHistory = true) {
         if (history.state?.page && history.state.page !== 'page-dashboard') {
             history.pushState({ page: 'page-dashboard' }, '');
         }
+    }
+}
+
+export function syncDatesAndRefresh(fetchDataFn) {
+    const now = new Date();
+    let scheduleChanged = false;
+    let mensaChanged = false;
+
+    // Reset schedule date to today if it was pointing to an older day
+    if (!isSameDay(state.currentScheduleDate, now)) {
+        state.currentScheduleDate = new Date();
+        scheduleChanged = true;
+    }
+
+    // Reset mensa date to today if it was pointing to an older day
+    if (!isSameDay(state.currentMensaDate, now)) {
+        state.currentMensaDate = new Date();
+        mensaChanged = true;
+    }
+
+    if (scheduleChanged) {
+        updateSubpageHeader('schedule');
+        renderScheduleDetail();
+        renderScheduleWidget();
+    }
+
+    if (mensaChanged) {
+        updateSubpageHeader('mensa');
+        updateMensaHeaderStatus();
+        loadMensaForDate(state.currentMensaDate);
+    }
+
+    // Background re-fetch to ensure fresh data
+    if (typeof fetchDataFn === 'function') {
+        fetchDataFn();
     }
 }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thd-app2-v158';
+const CACHE_NAME = 'thd-app2-v159';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -10,7 +10,6 @@ const ASSETS_TO_CACHE = [
   './icon-512.png',
   './img/bg1.jpg',
   './img/bg2.jpg',
-  './img/bg3.jpg',
   './app.js',
   './js/app.js',
   './js/config.js',

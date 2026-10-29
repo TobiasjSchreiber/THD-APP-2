@@ -254,33 +254,37 @@ export async function loadWeather() {
     const content = document.getElementById('widget-content-weather');
     const detail = document.getElementById('content-weather');
     
-    let hasValidCache = false;
+    let hasCachedData = false;
     const cachedStr = localStorage.getItem('thd_cache_weather');
     if (cachedStr) {
         try {
             const parsed = JSON.parse(cachedStr);
-            if (Date.now() - parsed.ts < 24 * 60 * 60 * 1000) {
+            if (parsed && parsed.data) {
                 cache = parsed;
-                hasValidCache = true;
+                hasCachedData = true;
+                if (content) renderWidget(content, cache.data);
+                if (detail) renderDetail(detail, cache.data);
+                const status = document.getElementById('weather-status-text');
+                if (status && cache.ts) {
+                    const t = new Date(cache.ts).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    status.textContent = `Campus · Stand ${t}`;
+                }
             }
         } catch(e) {}
     }
 
-    if (content && !hasValidCache) content.innerHTML = '<div class="loading">Lädt...</div>';
-    if (detail && !hasValidCache) detail.innerHTML = '<div class="loading">Lädt...</div>';
-
-    if (hasValidCache && cache.data) {
-        if (content) renderWidget(content, cache.data);
-        if (detail) renderDetail(detail, cache.data);
-        const status = document.getElementById('weather-status-text');
-        if (status) {
-            const t = new Date(cache.ts).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-            status.textContent = `Campus · Aktualisiert ${t}`;
+    // Only show loading placeholder if we have NO cached data and nothing rendered
+    if (!hasCachedData) {
+        const hasExisting = content && content.querySelector('.weather-text-widget');
+        if (!hasExisting) {
+            if (content) content.innerHTML = '<div class="loading">Lädt...</div>';
+            if (detail) detail.innerHTML = '<div class="loading">Lädt...</div>';
         }
     }
 
-    // Background update
+    // Background update (Stale-While-Revalidate)
     fetchWeather().then(d => {
+        // Only replace with new data when fetch succeeds
         if (content) renderWidget(content, d);
         if (detail) renderDetail(detail, d);
         const status = document.getElementById('weather-status-text');
@@ -290,7 +294,8 @@ export async function loadWeather() {
         }
     }).catch(e => {
         console.error('loadWeather error:', e);
-        if (!hasValidCache) {
+        // Only show error if no cached data was available
+        if (!hasCachedData && content && !content.querySelector('.weather-text-widget')) {
             if (content) content.innerHTML = '<div class="loading">Fehler beim Laden</div>';
             if (detail) detail.innerHTML = '<div class="loading">Fehler beim Laden</div>';
         }

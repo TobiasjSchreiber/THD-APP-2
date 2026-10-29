@@ -8,28 +8,34 @@ export async function loadEvents() {
     
     const cacheKey = 'thd_cache_events';
     const cached = localStorage.getItem(cacheKey);
-    let hasValidCache = false;
+    let hasCachedData = false;
     
+    // 1. Stale-While-Revalidate: render cached events immediately
     if (cached) {
         try {
-            const { timestamp, data } = JSON.parse(cached);
-            if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
-                const cachedEvents = data.map(e => ({
+            const parsed = JSON.parse(cached);
+            const rawList = parsed.data || parsed;
+            if (Array.isArray(rawList)) {
+                const cachedEvents = rawList.map(e => ({
                     ...e,
                     start: new Date(e.start),
                     end: e.end ? new Date(e.end) : null
                 }));
                 if (cachedEvents.length > 0) {
                     renderEventsToUi(cachedEvents, content, detail, 'Events');
-                    hasValidCache = true;
+                    hasCachedData = true;
                 }
             }
         } catch(e) {}
     }
     
-    if (!hasValidCache) {
-        if (content) content.innerHTML = getEventsSkeleton(true);
-        if (detail) detail.innerHTML = getEventsSkeleton(false);
+    // 2. Only show skeleton loaders if no cached events exist and nothing is displayed
+    if (!hasCachedData) {
+        const hasExisting = content && content.querySelector('.events-widget-item');
+        if (!hasExisting) {
+            if (content) content.innerHTML = getEventsSkeleton(true);
+            if (detail) detail.innerHTML = getEventsSkeleton(false);
+        }
     }
     
     try {
@@ -68,7 +74,7 @@ export async function loadEvents() {
         renderEventsToUi(events, content, detail, 'Events');
     } catch (e) {
         console.error('loadEvents error:', e);
-        if (!hasValidCache) {
+        if (!hasCachedData && (!content || !content.querySelector('.events-widget-item'))) {
             if (content) content.innerHTML = '<div class="loading">Fehler beim Laden</div>';
             if (detail) detail.innerHTML = '<div class="loading">Fehler beim Laden</div>';
         }

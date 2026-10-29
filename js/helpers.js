@@ -40,9 +40,14 @@ export function getWeekDays(refDate) {
     const curr = new Date(refDate);
     curr.setHours(0, 0, 0, 0);
     const day = curr.getDay(); // 0 is Sun, 1 is Mon
-    const diff = curr.getDate() - day + (day === 0 ? -6 : 1); // Monday
     const monday = new Date(curr);
-    monday.setDate(diff);
+    if (day === 0) {
+        // On Sunday, show the upcoming week (Monday tomorrow)
+        monday.setDate(curr.getDate() + 1);
+    } else {
+        const diff = curr.getDate() - day + 1; // Monday
+        monday.setDate(diff);
+    }
     
     const days = [];
     for (let i = 0; i < 5; i++) { // Mo - Fr

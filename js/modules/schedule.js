@@ -377,39 +377,50 @@ export async function loadSchedule() {
     
     const cacheKey = `thd_cache_schedule_${state.studyGroup}`;
     const cached = localStorage.getItem(cacheKey);
-    let hasValidCache = false;
+    let hasCachedData = false;
     
+    // 1. Stale-While-Revalidate: render cached schedule immediately without delay or blank screen
     if (cached) {
         try {
-            const { timestamp, data } = JSON.parse(cached);
-            // Cache is valid for 1 day
-            if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
-                state.allScheduleEvents = parseICal(data);
-                if (state.allScheduleEvents.length > 0) {
+            const parsedCache = JSON.parse(cached);
+            const rawData = parsedCache.data || parsedCache;
+            if (typeof rawData === 'string' && rawData.length > 0) {
+                const events = parseICal(rawData);
+                if (events && events.length > 0) {
+                    state.allScheduleEvents = events;
                     renderScheduleView();
-                    hasValidCache = true;
+                    hasCachedData = true;
                 }
             }
-        } catch(e) {}
+        } catch(e) {
+            console.warn('Fehler beim Lesen des Stundenplan-Caches:', e);
+        }
     }
     
-    if (!hasValidCache) {
+    // 2. Only show skeleton loaders if we have NO data to show yet
+    if (!hasCachedData && (!state.allScheduleEvents || state.allScheduleEvents.length === 0)) {
         if (content) content.innerHTML = getScheduleSkeleton(true);
-        if (detail && state.allScheduleEvents.length === 0) detail.innerHTML = getScheduleSkeleton(false);
+        if (detail) detail.innerHTML = getScheduleSkeleton(false);
     }
     
+    // 3. Fetch fresh schedule in background
     try {
         const url = CONFIG.thabellaUrlBase + state.studyGroup;
         const res = await fetch(CONFIG.proxyUrlBase + encodeURIComponent(url));
-        if (!res.ok) throw new Error();
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         
         const text = await res.text();
-        localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: text }));
-        state.allScheduleEvents = parseICal(text);
-        renderScheduleView();
+        const freshEvents = parseICal(text);
+        if (freshEvents && freshEvents.length > 0) {
+            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: text }));
+            state.allScheduleEvents = freshEvents;
+            // Only replace data when fresh data is parsed and ready
+            renderScheduleView();
+        }
     } catch (e) {
         console.error('loadSchedule error:', e);
-        if (!hasValidCache) {
+        // Only show error if we had nothing cached or displayed
+        if (!hasCachedData && (!state.allScheduleEvents || state.allScheduleEvents.length === 0)) {
             if (content) content.innerHTML = '<div class="loading">Fehler beim Laden</div>';
             if (detail) detail.innerHTML = '<div class="loading">Fehler beim Laden</div>';
         }

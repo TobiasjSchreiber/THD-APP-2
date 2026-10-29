@@ -6,22 +6,29 @@ export async function loadParking() {
     const content = document.getElementById('widget-content-parking');
     const detail = document.getElementById('content-parking');
     
-    let hasValidCache = false;
+    let hasCachedData = false;
     const cachedStr = localStorage.getItem('thd_cache_parking');
     if (cachedStr) {
         try {
             const parsed = JSON.parse(cachedStr);
-            if (Date.now() - parsed.ts < 24 * 60 * 60 * 1000) {
-                hasValidCache = true;
-                renderParking(content, detail, parsed.data);
+            const raw = parsed.data || parsed;
+            if (raw && typeof raw.used === 'number') {
+                hasCachedData = true;
+                renderParking(content, detail, raw);
             }
         } catch(e) {}
     }
 
-    if (content && !hasValidCache) content.innerHTML = getParkingSkeleton(true);
-    if (detail && !hasValidCache) detail.innerHTML = getParkingSkeleton(false);
+    // Only show skeletons if no cached data exists and nothing is rendered yet
+    if (!hasCachedData) {
+        const hasExisting = content && content.querySelector('.big-number');
+        if (!hasExisting) {
+            if (content) content.innerHTML = getParkingSkeleton(true);
+            if (detail) detail.innerHTML = getParkingSkeleton(false);
+        }
+    }
     
-    // Background update
+    // Background update (Stale-While-Revalidate)
     const url = CONFIG.parkingApiUrl;
     fetch(CONFIG.proxyUrlBase + encodeURIComponent(url))
         .then(res => res.json())
@@ -29,12 +36,16 @@ export async function loadParking() {
             const donau = data.result.find(p => p.id === 11 || p.name.includes('Donau'));
             if (donau) {
                 localStorage.setItem('thd_cache_parking', JSON.stringify({ ts: Date.now(), data: donau }));
+                // Only replace when new data has arrived
                 renderParking(content, detail, donau);
             }
         })
         .catch(e => {
             console.error('loadParking error:', e);
-            if (!hasValidCache && content) content.innerHTML = '<div class="loading">Fehler beim Laden</div>';
+            // Only show error if nothing was displayed or cached
+            if (!hasCachedData && content && !content.querySelector('.big-number')) {
+                content.innerHTML = '<div class="loading">Fehler beim Laden</div>';
+            }
         });
 }
 
