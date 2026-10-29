@@ -647,6 +647,21 @@ export async function loadMensaForDate(date) {
     };
 
     if (hasCachedData && state.mensaCache[dateIso]) {
+        const cachedImgMap = state.mensaImageCache ? state.mensaImageCache[dateIso] : null;
+        if (cachedImgMap && typeof cachedImgMap === 'object') {
+            state.mensaCache[dateIso].forEach(m => {
+                if (m.imageUrl === undefined) {
+                    const norm = (m.name || '').toLowerCase().trim();
+                    for (const [stwnoName, url] of Object.entries(cachedImgMap)) {
+                        const clean = stwnoName.toLowerCase().trim();
+                        if (norm === clean || norm.includes(clean) || clean.includes(norm)) {
+                            m.imageUrl = url;
+                            break;
+                        }
+                    }
+                }
+            });
+        }
         render(state.mensaCache[dateIso]);
     }
 
@@ -707,13 +722,28 @@ export async function loadMensaForDate(date) {
 async function fetchMensaImagesInBackground(dateIso, meals) {
     let imageMap = {};
     try {
-        const imgRes = await fetch(`${CONFIG.mensaImagesApiBase}${dateIso}`);
+        // Request with &week=true to receive all 5 weekdays in one call
+        const imgRes = await fetch(`${CONFIG.mensaImagesApiBase}${dateIso}&week=true`);
         if (imgRes.ok) {
-            imageMap = await imgRes.json();
+            const data = await imgRes.json();
             if (!state.mensaImageCache) state.mensaImageCache = {};
-            state.mensaImageCache[dateIso] = imageMap;
-            // Persist image map to localStorage so images are loaded immediately on reload
-            localStorage.setItem(`thd_cache_mensa_images_${dateIso}`, JSON.stringify(imageMap));
+            
+            // If the server returns a week object { 'YYYY-MM-DD': { ... } }
+            if (data && typeof data === 'object' && data[dateIso] !== undefined) {
+                Object.entries(data).forEach(([d, map]) => {
+                    state.mensaImageCache[d] = map;
+                    try {
+                        localStorage.setItem(`thd_cache_mensa_images_${d}`, JSON.stringify(map));
+                    } catch(e) {}
+                });
+                imageMap = data[dateIso] || {};
+            } else if (data && typeof data === 'object') {
+                imageMap = data;
+                state.mensaImageCache[dateIso] = imageMap;
+                try {
+                    localStorage.setItem(`thd_cache_mensa_images_${dateIso}`, JSON.stringify(imageMap));
+                } catch(e) {}
+            }
         }
     } catch(e) {
         // Silently ignore if offline
