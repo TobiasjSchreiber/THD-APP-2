@@ -403,16 +403,52 @@ export async function loadSchedule() {
         if (detail) detail.innerHTML = getScheduleSkeleton(false);
     }
     
-    // 3. Fetch fresh schedule in background
+    // 3. Fetch fresh schedule in background (supports single group, multiple comma-separated groups, or direct iCal URL)
     try {
-        const url = CONFIG.thabellaUrlBase + state.studyGroup;
-        const res = await fetch(CONFIG.proxyUrlBase + encodeURIComponent(url));
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const input = state.studyGroup.trim();
+        const items = input.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
+        const fetchUrls = items.map(item => {
+            if (item.startsWith('http://') || item.startsWith('https://')) {
+                return item;
+            }
+            return CONFIG.thabellaUrlBase + encodeURIComponent(item);
+        });
+
+        const fetchPromises = fetchUrls.map(async (u) => {
+            try {
+                const res = await fetch(CONFIG.proxyUrlBase + encodeURIComponent(u));
+                if (!res.ok) return '';
+                return await res.text();
+            } catch (err) {
+                console.warn('Fehler beim Laden von Stundenplan-Teil:', u, err);
+                return '';
+            }
+        });
+
+        const rawResults = await Promise.all(fetchPromises);
+        const validTexts = rawResults.filter(Boolean);
         
-        const text = await res.text();
-        const freshEvents = parseICal(text);
-        if (freshEvents && freshEvents.length > 0) {
-            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: text }));
+        let allFresh = [];
+        validTexts.forEach(txt => {
+            const parsed = parseICal(txt);
+            allFresh.push(...parsed);
+        });
+
+        // Deduplicate events by summary + start + end timestamp
+        const seen = new Set();
+        const freshEvents = [];
+        for (const ev of allFresh) {
+            const key = `${ev.summary}_${ev.start?.getTime()}_${ev.end?.getTime()}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                freshEvents.push(ev);
+            }
+        }
+        freshEvents.sort((a, b) => a.start - b.start);
+
+        if (freshEvents.length > 0) {
+            const combinedText = validTexts.join('\n');
+            localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: combinedText }));
             state.allScheduleEvents = freshEvents;
             // Only replace data when fresh data is parsed and ready
             renderScheduleView();
